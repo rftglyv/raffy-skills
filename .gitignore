@@ -2,3 +2,7 @@ _issues.json
 _ledger.jsonl
 __pycache__/
 .DS_Store
+.raffy/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
