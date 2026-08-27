@@ -6,13 +6,29 @@
  * more than a false positive. Everything it emits is a CANDIDATE and must be
  * verified against source before it appears in a report.
  *
- *   bun scan.ts [repo-path] [--json]
+ *   bun scan.ts [repo-path] [--json] [--exclude <path-substring>]...
  */
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
-import { join, relative, extname } from "node:path";
+import { join, relative, extname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const ROOT = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : ".";
 const AS_JSON = process.argv.includes("--json");
+
+/**
+ * Path substrings to skip. Security tooling, rule files and test fixtures
+ * contain the patterns by definition and produce pure noise — this scanner
+ * flags its own rule table if you let it. Repeatable: --exclude <substring>
+ */
+const EXCLUDE: string[] = [];
+for (let i = 0; i < process.argv.length; i++) {
+  if (process.argv[i] === "--exclude" && process.argv[i + 1]) EXCLUDE.push(process.argv[++i]);
+}
+const SELF = fileURLToPath(import.meta.url);
+const DEFAULT_EXCLUDE = [
+  "__fixtures__", "__mocks__", "/fixtures/", "/mocks/", ".snap",
+  "semgrep", "gitleaks", ".trivyignore", "trufflehog",
+];
 
 const SKIP_DIRS = new Set([
   "node_modules", ".git", ".next", "dist", "build", "out", ".turbo",
@@ -124,7 +140,14 @@ function walk(dir: string) {
   }
 }
 
+function excluded(file: string): boolean {
+  if (resolve(file) === SELF) return true;
+  const norm = file.split("\\").join("/");
+  return [...DEFAULT_EXCLUDE, ...EXCLUDE].some((frag) => norm.includes(frag));
+}
+
 function scan(file: string) {
+  if (excluded(file)) return;
   let src: string;
   try { src = readFileSync(file, "utf8"); } catch { return; }
   scanned++;

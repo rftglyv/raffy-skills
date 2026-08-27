@@ -164,3 +164,19 @@ Say these out loud in the clean section rather than reporting them:
 - A dependency CVE in a code path the app never calls.
 - A missing security header on a purely static page.
 - `.env.example` with placeholder values. That is correct practice.
+
+---
+
+## Expected false positives
+
+The scanner matches on patterns, so anything that *describes* a vulnerability trips it. Skip these
+rather than reporting them:
+
+- **Security tooling and rule files** — semgrep rules, gitleaks config, this scanner's own pattern
+  table. Excluded by default; add more with `--exclude <path-substring>`.
+- **Test fixtures and mocks** — a fixture containing `sk_live_...` is doing its job.
+- **Documentation** — a README showing the vulnerable form next to the fix.
+
+Found by running the scanner on its own repo: it flagged five candidates, all of them its own
+regex definitions. Any repo that contains security tooling has the same problem, which is why
+self-exclusion and `--exclude` exist.

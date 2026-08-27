@@ -1,6 +1,6 @@
 {
   "name": "raffy",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Autonomous whole-product QA audits. Introspects a repo, fans out parallel domain agents, verifies the severe findings against source, and emits tracker-ready findings docs with acceptance criteria.",
   "author": {
     "name": "rftglyv",
