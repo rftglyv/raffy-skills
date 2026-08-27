@@ -1,0 +1,16 @@
+{
+  "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
+  "name": "raffy-skills",
+  "description": "Raffy's Claude Code skills — starting with qa-audit, an autonomous whole-product audit that produces tracker-ready findings.",
+  "owner": {
+    "name": "rftglyv"
+  },
+  "plugins": [
+    {
+      "name": "raffy",
+      "description": "Autonomous whole-product QA audit: introspect, fan out, verify, report.",
+      "source": "./",
+      "category": "testing"
+    }
+  ]
+}
