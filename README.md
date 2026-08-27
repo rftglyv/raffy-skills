@@ -1,111 +1,104 @@
 # raffy-skills
 
-Claude Code plugin. One skill so far: **`raffy:qa-audit`** — an autonomous whole-product audit that
-produces findings a senior engineer would sign their name to.
+A Claude Code plugin for building software with an agent and coming out the other side able to
+supervise one.
 
-## What it does
+Five skills, one namespace: `/raffy:*`.
 
-Point it at a repo. It:
+| Command | Does |
+|---|---|
+| **`/raffy:scaffold`** | Interviews you, composes a stack from a 144-card knowledge base, and explains every choice it rejected |
+| **`/raffy:secure`** | Fast pre-deploy pass over the eight holes that show up in AI-built apps |
+| **`/raffy:ship`** | Twelve production-readiness items, verified by running them, not by finding a file |
+| **`/raffy:qa-audit`** | Full whole-product audit — parallel domain agents, verified findings, tracker-ready |
+| **`/raffy:drill`** | Turns your own code into review exercises, and tracks what you have earned |
 
-1. **Introspects** — derives the product's real user-facing domains from routes, services and the
-   repo's own docs, instead of applying a generic checklist.
-2. **Fans out** — one parallel agent per domain, each with an explicit file scope and a
-   domain-specific bug-class list, all read-only.
-3. **Measures live** — if an instance exists, collects real Web Vitals and API timing (read-only,
-   never mutating).
-4. **Verifies** — re-checks every P0 against source itself. Agents produce confident wrong
-   answers; unverified output is worthless.
-5. **Reports** — one markdown file per domain where **every finding is already a ticket**: title,
-   impact, repro, fix, acceptance criteria, confidence.
-6. **Imports** — parses the findings into structured JSON for Linear / Jira / GitHub, with a
-   resumable ledger so a 200-issue import survives being interrupted.
+## The idea
 
-## Why it's different
+Three failure modes of building with an agent, one skill aimed at each.
 
-Most "audit my app" runs produce a plausible list nobody acts on. Three things fix that:
+**Bad defaults get baked in.** Row-level security off, secrets in the client bundle, no migrations.
+Cheap to prevent at commit one, expensive at commit four hundred. → `scaffold`, `secure`
 
-- **A verification pass.** The report states how many severe findings were independently
-  re-verified and how many held. That number is the credibility of the whole document.
-- **A rejected-hypotheses section.** Things that looked like bugs and provably weren't, with
-  measurements. Anyone can list possible bugs; only someone who actually looked can list what
-  turned out fine.
-- **It says what's good.** A report that finds only problems reads as unserious — and it makes the
-  real findings land harder when they're surrounded by honest calibration.
+**The agent forgets, and guesses.** It re-decides your architecture every session and answers
+version-specific questions from stale training data with total confidence. → the knowledge base
 
-Every finding cites a real `file:line`. Anything that can't be grounded in code gets dropped.
+**You can't tell.** Prompting a working prototype is not the same as judging whether a fix
+addressed the cause — and that judgment is what predicts whether someone can supervise an agent at
+all. → `drill`
 
-## Install
+## Three rules the whole plugin runs on
+
+1. **Grounded or dropped.** Every finding cites a real `file:line`. Every researched fact carries a
+   source URL. Anything that can't be grounded doesn't ship.
+2. **Verify before reporting.** Agents produce confident wrong answers, so severe findings get
+   re-checked against source and the report states the hold rate.
+3. **Earn the infrastructure.** Queues, brokers and caches are added on a measured constraint, never
+   on a hunch. Speculative scale is a bug.
+
+## The knowledge base
+
+`scaffold` doesn't pick from a list of presets. It reads 144 cards across 19 layers — runtime,
+frontend, api, orm, database, validation, auth, styling, jobs, messaging, payments, notifications,
+storage, search, ai, testing, observability, hosting, mobile.
+
+Each card carries judgment rather than documentation: **when to use it, when not to, what it
+conflicts with, how long it takes to adopt — and how long it takes to remove.** That last asymmetry
+is usually the real decision and nobody writes it down. Actual API details are fetched from the
+`Docs:` URL at the moment of implementation, so the cards never go stale on syntax.
+
+The agent answers from four tiers, in order, and says which one it used:
+
+| | Tier | Trust |
+|---|---|---|
+| 1 | **Curated** — the shipped cards, versioned in git | high |
+| 2 | **Learned** — researched and written back with source and date | medium |
+| 3 | **Live web** — fetched now, primary sources first | verify |
+| 4 | **Model memory** — no source, no date, no way to check | last resort, and say so |
+
+Local store, one SQLite file, no server and no API key:
 
 ```bash
-claude plugin marketplace add ~/code/raffy-skills
-claude plugin install raffy@raffy-skills
+bunx raffy-kb update              # reindex; never destroys learned entries
+bunx raffy-kb search "does prisma work under bun"
+bunx raffy-kb stats
 ```
 
-Or from GitHub once pushed:
+## Install
 
 ```bash
 claude plugin marketplace add rftglyv/raffy-skills
 claude plugin install raffy@raffy-skills
 ```
 
-## Use
-
-```
-/raffy:qa-audit
-```
-
-Or just ask: *"audit the whole app and list the bugs"*, *"find everything wrong with this
-product"*, *"QA the app and prep it for Linear"*.
-
-Scope it if you want: *"audit only the payments and auth surfaces"*.
-
-## Output
-
-```
-Docs/audit-findings-<YYYY-MM-DD>/
-├── README.md                  # index: totals, top-N ranked, duplicate clusters, caveats
-├── 01-security.md             # one file per domain, priority-ordered
-├── 02-monetization.md
-├── ...
-├── _issues.json               # generated — structured, ready for tracker import
-└── _ledger.jsonl              # generated during import — makes it resumable
-```
+Then `/raffy:scaffold` in an empty directory.
 
 ## Layout
 
 ```
-skills/qa-audit/
-├── SKILL.md                       # the 8-phase procedure
-├── references/
-│   ├── introspection.md           # per-stack discovery commands
-│   ├── finding-format.md          # the exact finding block + severity calibration
-│   ├── live-measurement.md        # read-only Web Vitals / API timing collection
-│   ├── report-template.md         # the README skeleton
-│   └── tracker-import.md          # field mapping, route selection, resumable ledger
-└── scripts/
-    └── parse_findings.py          # findings markdown → structured JSON
+.claude-plugin/          plugin + marketplace manifests
+skills/
+  scaffold/              SKILL.md · 8 references · 19 knowledge layers · kb.ts
+  secure/                SKILL.md · checks.md · scan.ts
+  ship/                  SKILL.md · readiness.md
+  qa-audit/              SKILL.md · 5 references · parse_findings.py
+  drill/                 SKILL.md · concepts.md
+packages/raffy-kb/       npm package: CLI + statusline
 ```
 
-`parse_findings.py` doubles as a **self-check**: run it on your own report and it flags any
-finding missing a `Files` field, acceptance criteria, or a substantive body.
+## Developing
+
+`claude plugin install` **copies** the repo into
+`~/.claude/plugins/cache/raffy-skills/raffy/<version>/`. Editing files here changes nothing until
+you bump the version and reinstall:
 
 ```bash
-python3 skills/qa-audit/scripts/parse_findings.py <findings-dir> --strict
+# bump "version" in .claude-plugin/plugin.json first
+claude plugin marketplace update raffy-skills
+claude plugin install raffy@raffy-skills
 ```
 
-## Cost
+Scripts referenced from a `SKILL.md` must use `${CLAUDE_PLUGIN_ROOT}` — the runtime path is the
+cache directory, not this repo.
 
-Real. It spawns 6–14 agents that each read a lot of source. Scale-appropriate for a milestone
-audit, not for checking a single diff — use a code-review skill for that.
-
-## Safety
-
-- **Read-only.** The audit never modifies source. Fixing mid-audit destroys the baseline.
-- **No live exploitation.** Findings describe attacks; they don't execute them. Live measurement
-  is limited to public, read-only page loads.
-- Findings routinely contain working exploit paths. Keep them in files and private trackers — not
-  on hosted pages or public issue trackers.
-
-## License
-
-MIT
+MIT.

@@ -1,0 +1,17 @@
+{
+  "name": "raffy-kb",
+  "version": "0.2.0",
+  "description": "Local knowledge base for the raffy Claude Code plugin — curated stack knowledge plus what your agent researched, in one SQLite file.",
+  "bin": { "raffy-kb": "./cli.mjs" },
+  "type": "module",
+  "files": ["cli.mjs", "kb.ts", "statusline.mjs", "knowledge/", "README.md"],
+  "scripts": {
+    "prepack": "node -e \"require('fs').cpSync('../../skills/scaffold/knowledge','knowledge',{recursive:true})\"",
+    "postinstall": "node cli.mjs build --quiet || true"
+  },
+  "keywords": ["claude-code", "knowledge-base", "sqlite", "bun", "stack"],
+  "author": "rftglyv",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/rftglyv/raffy-skills.git" },
+  "engines": { "bun": ">=1.0.0" }
+}

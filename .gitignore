@@ -6,3 +6,6 @@ __pycache__/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+
+packages/raffy-kb/knowledge/
+packages/*/node_modules/
