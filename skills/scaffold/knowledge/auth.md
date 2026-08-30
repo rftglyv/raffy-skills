@@ -16,7 +16,7 @@ Whatever you pick, verify all six before shipping:
 6. **Password reset and email-change flows expire and are single-use.**
 
 ### Better Auth
-**Bun:** full · **Docs:** https://better-auth.com · **Teaches:** sessions, oauth, rbac, multi-tenancy
+**Bun:** full · **Docs:** https://better-auth.com · **Teaches:** sessions, oauth, rbac, multi-tenancy, row-level-authorization
 Self-hosted TypeScript auth that owns its tables in your database, with plugins for organizations,
 2FA, passkeys and magic links.
 **Use when** — the default for new TypeScript apps · you want auth data in your own database · you
@@ -44,7 +44,7 @@ admin panel.
 id you do not store will hurt.
 
 ### Supabase Auth
-**Docs:** https://supabase.com/docs/guides/auth · **Teaches:** rls, jwt, postgres-policies
+**Docs:** https://supabase.com/docs/guides/auth · **Teaches:** rls, jwt, postgres-policies, row-level-authorization
 **Use when** — you are already on Supabase.
 **Don't use when** — you are not. Adopting Supabase for auth alone brings the whole platform.
 **Gotcha:** **RLS is the whole security model, and it is off until you turn it on.** Every table
@@ -61,6 +61,7 @@ directory sync. **Don't use when** — B2C or early-stage B2B.
 **Don't use when** — a small team. The operational cost is substantial.
 
 ### Hand-rolled JWT
+**Guidance — not an option to choose between.**
 **Don't.** It is the most common source of authentication vulnerabilities in AI-generated code:
 unverified signatures, `alg: none`, no expiry, secrets in the repo, no revocation path. If a
 requirement seems to demand it, re-read the requirement.

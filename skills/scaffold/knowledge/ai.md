@@ -47,6 +47,7 @@ your time until surprisingly high volume.
 "call the API in a loop" is a legitimate and often better architecture.
 
 ### Embeddings & retrieval
+**Guidance — not an option to choose between.**
 **Teaches:** embeddings, chunking, hybrid-search, reranking
 Start with **pgvector** — see `search.md`. The quality levers, in order of impact: **chunking
 strategy**, then **hybrid search** (full-text plus vector), then **reranking**, and only then the
@@ -59,3 +60,4 @@ embedding model. Teams tune the model first and get the least return.
 change improved anything, and you will change prompts constantly.
 **Gotcha:** build a twenty-case eval set on day one. It costs an hour and is the only thing standing
 between you and silently shipping regressions.
+**Don't use when** — the model output is internal tooling nobody sees.

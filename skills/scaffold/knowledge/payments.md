@@ -12,7 +12,7 @@ this layer ships:
 Also: prices belong on the server. A client-supplied amount is a free-shopping vulnerability.
 
 ### Stripe
-**Bun:** full · **Docs:** https://docs.stripe.com · **Teaches:** webhooks, idempotency, subscriptions, pci-scope
+**Bun:** full · **Docs:** https://docs.stripe.com · **Teaches:** webhooks, webhook-idempotency, subscriptions, pci-scope
 The default. Checkout, subscriptions, invoicing, marketplaces, the best test mode and docs.
 **Use when** — almost always, if Stripe supports your country and you are willing to handle sales
 tax and VAT yourself or via Stripe Tax.
@@ -37,6 +37,7 @@ larger B2B SaaS; Lemon Squeezy suits indie and small products.
 **Gotcha:** higher percentage than Stripe. That difference is the price of not doing tax.
 
 ### Regional and alternative rails
+**Guidance — not an option to choose between.**
 **Teaches:** local-payment-methods
 Some markets need a local processor — iyzico or PayTR in Turkey, Razorpay in India, Mercado Pago in
 Latin America, Adyen for enterprise multi-region, and Coinbase Commerce for crypto. **Ask where the

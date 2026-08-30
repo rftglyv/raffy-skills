@@ -12,7 +12,7 @@ assertion was wrong. That is the most common way AI-assisted work silently break
 
 ### `bun test`
 **Bun:** full · **Docs:** https://bun.sh/docs/cli/test
-**Teaches:** unit-testing, mocking, snapshots
+**Teaches:** unit-testing, mocking, snapshots, test-assertion-integrity
 Jest-compatible runner built into the runtime. No dependencies, no config.
 **Use when** — the default for server-side TypeScript: units, API handlers, utilities, integration.
 Roughly 3–6s on a 1,500-case suite against Vitest's 10–15s, with sub-second watch.
@@ -38,6 +38,7 @@ browser directly — useful for verifying its own work.
 **Docs:** https://mswjs.io · **Teaches:** mocking, network-layer-testing
 Intercepts at the network layer so tests exercise real client code.
 **Use when** — testing components or code that calls APIs.
+**Don't use when** — the test can hit a real service in a container. Prefer Testcontainers.
 
 ### Testcontainers
 **Docs:** https://testcontainers.com · **Teaches:** integration-testing, ephemeral-infrastructure
@@ -47,6 +48,7 @@ an ORM.
 **Don't use when** — unit tests. Too slow for the inner loop.
 
 ### Type checking as a test
+**Guidance — not an option to choose between.**
 `tsc --noEmit` in CI. **Strict mode on from the first commit.** Turning it on later means fixing
 hundreds of errors at once, so almost nobody does — which is why so many AI-built TypeScript
 codebases are effectively untyped.

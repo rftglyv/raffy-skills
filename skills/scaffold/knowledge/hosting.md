@@ -7,7 +7,7 @@ Whatever you pick: **secrets in the platform's secret store, never in the repo**
 environment separate from production; and a deploy you can roll back in one command.
 
 ### Docker + a VPS (Hetzner · DigitalOcean · OVH)
-**Bun:** full · **Docs:** https://docs.docker.com · **Teaches:** containers, reverse-proxy, tls, systemd, backups
+**Bun:** full · **Docs:** https://docs.docker.com · **Teaches:** containers, reverse-proxy, tls, systemd, backups, secret-exposure
 **Use when** — cost matters · you want full portability with no vendor to migrate off · you run
 services a PaaS cannot host well (databases, queues, ClickHouse).
 **Don't use when** — nobody on the project wants to be responsible for an operating system.
@@ -61,3 +61,4 @@ easy to get wrong.
 **Use when** — always. On every PR: install, typecheck, test, build. On merge: deploy.
 **Gotcha:** cache the bun install step. And **never echo a secret into logs** — including in a
 debugging step you meant to remove.
+**Don't use when** — your code is not on GitHub; use the host's native CI instead.

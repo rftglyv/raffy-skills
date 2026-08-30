@@ -1,0 +1,41 @@
+name: check
+
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  invariants:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+
+      # The skills reference each other by path. A broken reference fails
+      # silently at runtime as "the agent couldn't find the file", so it is
+      # checked here instead.
+      - name: repo invariants
+        run: bun scripts/check.ts
+
+      # Both scripts must run clean against a repo with nothing to find.
+      - name: scanners execute
+        run: |
+          bun skills/secure/scripts/scan.ts . > /dev/null
+          bun skills/ship/scripts/readiness.ts . > /dev/null
+
+      # The knowledge base must index without loss.
+      - name: knowledge base builds
+        env: { RAFFY_KB_DIR: /tmp/kb }
+        run: |
+          bun skills/scaffold/scripts/kb.ts build
+          bun skills/scaffold/scripts/kb.ts search "does prisma work under bun" -n 1 | grep -q Prisma
+
+      - name: manifests valid
+        run: |
+          bunx --bun json -h > /dev/null 2>&1 || true
+          node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/plugin.json'))"
+          node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json'))"
+
+      # parse_findings.py is the contract between qa-audit and any tracker.
+      - name: findings parser imports
+        run: python3 -c "import ast,sys; ast.parse(open('skills/qa-audit/scripts/parse_findings.py').read())"

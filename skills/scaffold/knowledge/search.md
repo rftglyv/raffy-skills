@@ -4,6 +4,7 @@
 all, and most teams jump straight to rung 3 without trying rung 1.
 
 ### `LIKE` / `ILIKE` (rung 0)
+**Docs:** n/a — it is a SQL operator.
 **Teaches:** query-patterns, indexes
 **Use when** — under ~10k rows, exact-ish matching, an admin filter box.
 **Don't use when** — users expect ranking or typo tolerance.

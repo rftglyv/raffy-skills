@@ -1,7 +1,7 @@
 # Finding format
 
 Paste this block into **every** agent prompt verbatim. Consistency is what makes the findings
-machine-parseable in Phase 7 — `scripts/parse_findings.py` depends on this exact shape.
+machine-parseable in Phase 7 — `../scripts/parse_findings.py` depends on this exact shape.
 
 ---
 

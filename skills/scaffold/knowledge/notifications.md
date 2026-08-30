@@ -24,6 +24,7 @@ and cost matters at volume · SendGrid for mixed transactional and marketing.
 Email templates as React components, with a preview server.
 **Use when** — any React project sending styled email. Hand-writing table-based email HTML in 2026
 is not a good use of anyone's time.
+**Don't use when** — a plain-text email is enough, which is often true for OTP and alerts.
 
 ### Twilio (SMS) · WhatsApp Business
 **Docs:** https://twilio.com/docs · **Teaches:** sms, delivery-receipts, e164
@@ -35,6 +36,7 @@ is not a good use of anyone's time.
 **Teaches:** service-workers, subscriptions, permissions
 **Use when** — re-engagement matters and users opted in.
 **Gotcha:** ask for permission *after* the user has done something meaningful, never on page load.
+**Don't use when** — email covers it. Push permission asked too early is permanently denied.
 
 ### Novu · Knock
 **Docs:** https://docs.novu.co · **Teaches:** notification-orchestration, preferences, digests

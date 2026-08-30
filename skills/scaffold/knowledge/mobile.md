@@ -46,6 +46,7 @@ platform-specific APIs.
 **Don't use when** — you need both platforms and have one small team.
 
 ### What mobile changes about the backend
+**Guidance — not an option to choose between.**
 **Teaches:** api-versioning, token-storage, offline-sync
 Three things, and all three are the reason mobile is a backend decision too:
 1. **You cannot force an upgrade.** Old app versions call your API for months. Version it.

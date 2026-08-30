@@ -8,7 +8,7 @@ Unvalidated input is one of the most reliable holes in AI-generated code, becaus
 works and nothing complains.
 
 ### Zod
-**Bun:** full · **Docs:** https://zod.dev · **Teaches:** runtime-validation, type-inference, parse-dont-validate
+**Bun:** full · **Docs:** https://zod.dev · **Teaches:** runtime-validation, type-inference, parse-dont-validate, mass-assignment
 Schema declaration and validation with static types inferred from the schema — one definition, no
 drift between the type and the check.
 **Use when** — the default for TypeScript. Works everywhere: forms, API boundaries, env vars,
@@ -40,3 +40,4 @@ performance. **Don't use when** — you need the largest ecosystem.
 **Use when** — a Python or Go backend serves a TypeScript frontend, or a third party consumes your
 API. Generate the client; never hand-write it.
 **Gotcha:** the FastAPI + hand-written TS client combination drifts within weeks. This is the fix.
+**Don't use when** — one TypeScript monorepo with one client; shared types are simpler.

@@ -7,6 +7,7 @@ talking to each other. **One service never needs a broker.** Read
 Reaching for Kafka to send an email is the clearest single sign of an over-built stack.
 
 ### Direct HTTP (rung 0)
+**Docs:** n/a — it is fetch.
 **Teaches:** service-boundaries, timeouts, retries
 **Use when** — two or three services and synchronous calls are fine. The correct default.
 **Don't use when** — a slow downstream service would block a user response, or a failure should not
@@ -58,3 +59,4 @@ notifications, progress and streaming LLM output. WebSockets only when the clien
 continuously (chat, collaborative editing, multiplayer).
 **Gotcha:** serverless platforms often cannot hold long-lived connections. Check the host before
 choosing WebSockets, or use a managed service.
+**Don't use when** — polling every 30s is genuinely fine, which it often is for dashboards.

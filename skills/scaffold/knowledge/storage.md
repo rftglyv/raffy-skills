@@ -25,11 +25,13 @@ Managed uploads for TypeScript apps with the presigned flow and type-safe callba
 **Don't use when** — large volumes, where the managed price stops making sense.
 
 ### Database blobs
+**Docs:** n/a — a column type.
 **Use when** — small files, few of them, and transactional consistency with a row genuinely matters.
 **Don't use when** — images, video, or anything a user uploads repeatedly. Backups become enormous
 and slow.
 
 ### Local disk
+**Docs:** n/a — the filesystem.
 **Use when** — a single-server deployment with a persistent volume, or development.
 **Don't use when** — more than one instance, containers without volumes, or any serverless platform.
 Files vanish on redeploy, which is discovered in production.
@@ -40,3 +42,4 @@ Files vanish on redeploy, which is discovered in production.
 **Use when** — users upload images. Resize and re-encode on upload, never serve originals.
 **Gotcha:** `sharp` is a **native node-gyp addon** and is the most likely thing to fail under bun.
 Cloudflare Images, imgproxy, or a framework's built-in optimizer sidestep it entirely.
+**Don't use when** — the images are yours and already optimized at build time.

@@ -14,6 +14,7 @@ JSON logs, not string concatenation — so they can be filtered and searched lat
 **Gotcha:** attach a **request id** to every log line and return it to the client on errors. "Error
 ref 8f3a" turns an unreproducible bug report into a single query. And **never log secrets, tokens,
 passwords or full request bodies** — this is a leak that looks like diligence.
+**Don't use when** — nothing. The only wrong answer here is string concatenation.
 
 ### Sentry
 **Bun:** full · **Docs:** https://docs.sentry.io · **Teaches:** error-tracking, source-maps, release-health
@@ -27,6 +28,7 @@ Exceptions with stack traces, breadcrumbs, release tracking, and session replay.
 **Docs:** https://betterstack.com/docs · **Teaches:** health-checks, alerting, slo
 **Use when** — anything with users. Expose a `/health` endpoint that actually checks the database,
 not one that returns `200` unconditionally.
+**Don't use when** — pre-launch with no users. The day you have one, add it.
 
 ### OpenTelemetry
 **Bun:** full · **Docs:** https://opentelemetry.io/docs · **Teaches:** tracing, spans, context-propagation

@@ -38,7 +38,7 @@ Docker, no API key, works offline.**
 - **Semantic:** an optional `embedding` BLOB per chunk, scored by brute-force cosine in JS. At a
   few tens of thousands of chunks this is single-digit milliseconds — an index would be premature.
 - **Hybrid:** both, merged by reciprocal rank fusion. This beats either alone, which is the same
-  advice `knowledge/search.md` gives; the KB follows its own guidance.
+  advice `../knowledge/search.md` gives; the KB follows its own guidance.
 
 **Being straight about the design:** for the ~19 shipped cards, FTS5 alone is enough and a vector
 store would be over-built. Vectors earn their place as tier 2 grows — hundreds of researched

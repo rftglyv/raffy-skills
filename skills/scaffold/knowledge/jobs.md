@@ -5,6 +5,7 @@ constraint**, and put long-running work behind a function boundary even at rung 
 nothing today and a week later.
 
 ### Inline, behind a function (rung 0)
+**Docs:** n/a — it is a function call.
 **Teaches:** request-boundary
 Just call it, but call it from a named function like `sendWelcomeEmail(userId)` rather than inlining
 the logic in the route handler.
@@ -13,7 +14,7 @@ the logic in the route handler.
 
 ### pg-boss (rung 1)
 **Bun:** full · **Docs:** https://github.com/timgit/pg-boss
-**Teaches:** queues, retries, idempotency, at-least-once-delivery
+**Teaches:** queues, retries, at-least-once-delivery, earn-the-infrastructure
 A job queue that lives in the Postgres you already run. Scheduling, retries, dead-letter, cron.
 **Use when** — the first task outlives a request: email, PDF, LLM call, third-party API, imports.
 **Don't use when** — very high throughput, or you need fine-grained concurrency and priorities.
@@ -57,3 +58,4 @@ become the buggiest file in the repo. That experience is what makes Temporal mak
 Triggers, GitHub Actions on a schedule) · system cron on a VPS.
 **Gotcha:** two instances means two runs. Use a database lock or a scheduler with leader election.
 Also: a job that runs every minute and takes 90 seconds will overlap itself.
+**Don't use when** — the work is event-driven. A poll every minute is a worse queue.

@@ -65,7 +65,7 @@ stack from being over-built.
 ## Q6 · Do you take money? *(when relevant)*
 
 Payments bring webhooks, idempotency, and reconciliation — three things AI-generated code gets
-wrong by default. A duplicate webhook must not charge twice. See `knowledge/payments.md`.
+wrong by default. A duplicate webhook must not charge twice. See `../knowledge/payments.md`.
 
 Also decide: subscriptions vs one-off, and whether a merchant of record is worth it for global
 tax handling.

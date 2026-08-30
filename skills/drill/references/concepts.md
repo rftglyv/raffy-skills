@@ -79,6 +79,8 @@ the architecture of a system a thousand times larger.
 **L3:** asks how hard a dependency is to remove *before* adopting it, not after.
 
 ### `abstraction-timing`
+**Source: process, not a card.** No knowledge card teaches this — it comes from reviewing the
+user's own repeated code.
 **L3:** can say why the third occurrence is the right time to extract a shared function, and the
 second usually is not.
 

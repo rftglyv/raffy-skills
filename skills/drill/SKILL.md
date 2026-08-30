@@ -29,12 +29,14 @@ supervise" means concretely, and it is what this skill moves.
 ## Phase 0 — Load the state
 
 ```bash
-cat ~/.claude/raffy/progress.md 2>/dev/null
+bun "${CLAUDE_PLUGIN_ROOT}/skills/drill/scripts/ledger.ts" show
+bun "${CLAUDE_PLUGIN_ROOT}/skills/drill/scripts/ledger.ts" weakest -n 5
 cat .raffy/progress.md 2>/dev/null
 ```
 
-The ledger holds concepts encountered, level per concept, and past drill results. **No ledger?**
-This is their first session — say so, start at L1, and create it.
+The ledger holds a level per concept plus the hit/miss streak. `weakest` is the drill list — it
+returns everything not yet at L3, worst first. **No ledger?** This is their first session — say so,
+start at L1, and it is created on the first `record`.
 
 Then ask what they want to work on, or pick from the weakest concepts in the ledger. Do not run
 more than **five drills** in a sitting; attention is the constraint, not material.
@@ -106,14 +108,16 @@ check looks like authorization, so both the model and the reviewer stop reading.
 
 ## Phase 4 — Record
 
-Append to `~/.claude/raffy/progress.md`:
+One call per drill. The script owns promotion — two consecutive hits promote, two consecutive
+misses demote, and the streak resets on either, so a level has to be earned on its own terms.
 
-```markdown
-## drill — <date> — <project>
-row-level-authorization   L2 → L3  (2/2)
-webhook-idempotency       L1 → L1  (0/2 — revisit: at-least-once delivery)
-mass-assignment           new → L1
+```bash
+bun "${CLAUDE_PLUGIN_ROOT}/skills/drill/scripts/ledger.ts" record row-level-authorization hit --project barbershop
+bun "${CLAUDE_PLUGIN_ROOT}/skills/drill/scripts/ledger.ts" record webhook-idempotency miss --project barbershop
 ```
+
+It prints the transition (`L2 → L3`) or that the level held. **Read that back to the user** — a
+promotion they did not hear about did not happen.
 
 Then close with **one thing to watch for in their next session**, tied to the concept they just
 missed. Specific, and in their codebase.

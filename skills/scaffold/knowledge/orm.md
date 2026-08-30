@@ -18,7 +18,7 @@ nobody on the team knows SQL at all.
 
 ### Prisma
 **Bun:** partial — **broken under `bun --bun` with Next.js Turbopack** (prisma#28956, bun#25032)
-**Docs:** https://prisma.io/docs · **Teaches:** schema-modeling, migrations, orm-abstraction
+**Docs:** https://prisma.io/docs · **Teaches:** schema-modeling, migrations, orm-abstraction, cost-to-remove
 Schema-first ORM with a dedicated schema language, strong migrations, and a good studio GUI.
 **Use when** — the team prefers a declarative schema file · migration ergonomics are the priority ·
 someone new to databases needs the gentlest on-ramp.
@@ -48,6 +48,7 @@ and AI-generated code still produces it.
 **Bun:** n/a (Python) · **Docs:** https://docs.sqlalchemy.org
 **Teaches:** orm-patterns, migrations, unit-of-work
 The Python answer. Use it in a FastAPI service; Alembic handles migrations.
+**Don't use when** — the service is TypeScript. This is the Python answer only.
 
 ### Mongoose
 **Bun:** partial · **Docs:** https://mongoosejs.com · **Teaches:** document-modeling, schemas

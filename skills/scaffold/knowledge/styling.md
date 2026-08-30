@@ -46,6 +46,7 @@ rejects utility classes.
 consistent.
 
 ### CSS-in-JS at runtime (styled-components, Emotion)
+**Docs:** https://styled-components.com/docs
 **Use when** — maintaining something that already uses it.
 **Don't use when** — greenfield. Runtime cost and poor React Server Component compatibility.
 

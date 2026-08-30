@@ -38,8 +38,17 @@ items against <repo>. I'll report what's missing and fix what you approve."*
 
 ## Phase 1 — The checklist
 
-Work `references/readiness.md`. Twelve items in four groups. For each, **verify against the repo**
-— do not accept a config file's existence as proof it works.
+```bash
+bun "${CLAUDE_PLUGIN_ROOT}/skills/ship/scripts/readiness.ts" <repo-path>
+```
+
+The script reports what it can **see**: it finds migration directories, loggers, CI gates, health
+endpoints and tracked `.env` files. It cannot report what it cannot **run** — a migration directory
+proves migrations exist, not that the deploy applies them, and nothing can tell you a restore works.
+Those come back as `MANUAL` and `PARTIAL`, and Phase 3 is where they get executed.
+
+Then work `references/readiness.md` for everything the script cannot reach. For each item,
+**verify against the repo** — do not accept a config file's existence as proof it works.
 
 | Group | Items |
 |---|---|
