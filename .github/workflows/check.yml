@@ -21,6 +21,8 @@ jobs:
       - name: scanners execute
         run: |
           bun skills/secure/scripts/scan.ts . > /dev/null
+          bun skills/secure/scripts/scan.ts . | grep -q "skipped .* vendored folders"
+          bun skills/secure/scripts/scan.ts . --vendored --json | node -e "JSON.parse(require('fs').readFileSync(0)).vendored.length === 0 || process.exit(1)"
           bun skills/ship/scripts/readiness.ts . > /dev/null
 
       # The guide's scripts must run on a machine with no skills installed and
