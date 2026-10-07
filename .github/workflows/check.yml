@@ -23,6 +23,28 @@ jobs:
           bun skills/secure/scripts/scan.ts . > /dev/null
           bun skills/ship/scripts/readiness.ts . > /dev/null
 
+      # The guide's scripts must run on a machine with no skills installed and
+      # no journey yet — that is every new user's first run.
+      - name: guide scripts execute
+        env: { CLAUDE_CONFIG_DIR: /tmp/empty-claude, RAFFY_HOME: /tmp/raffy-home }
+        run: |
+          bun skills/guide/scripts/inventory.ts . --json | node -e "JSON.parse(require('fs').readFileSync(0))"
+          bun skills/guide/scripts/journey.ts where . --json > /dev/null
+          bun skills/guide/scripts/journey.ts log /tmp --skill raffy:guide --phase build --status done
+          bun skills/guide/scripts/journey.ts all | grep -q raffy:guide
+          bun skills/guide/scripts/catalog.ts find did I leak api keys | grep -q raffy:secure
+
+      # The prompt hook runs before every message a user sends. It must answer
+      # fast, say nothing on unrelated prompts, and never fail.
+      - name: prompt hook
+        env: { RAFFY_HOME: /tmp/raffy-hook }
+        run: |
+          out=$(printf '{"prompt":"did I leak any api keys in here","session_id":"ci"}' | bun hooks/prompt.ts)
+          echo "$out" | grep -q raffy:secure
+          quiet=$(printf '{"prompt":"rename this variable to count","session_id":"ci2"}' | bun hooks/prompt.ts | grep -v "not set up" || true)
+          test -z "$quiet"
+          printf 'not json' | bun hooks/prompt.ts
+
       # The knowledge base must index without loss.
       - name: knowledge base builds
         env: { RAFFY_KB_DIR: /tmp/kb }

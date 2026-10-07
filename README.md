@@ -3,10 +3,23 @@
 A Claude Code plugin for building software with an agent and coming out the other side able to
 supervise one.
 
-Five skills, one namespace: `/raffy:*`.
+You probably have dozens of skills installed already — Matt Pocock's, impeccable, shadcn, figma,
+addy's agent-skills, your own. Five of them claim the same job, and nothing tells you which one fits
+*now*. **`/raffy:guide` is the front door:** it works out where your project is, picks the right
+skill from everything installed, tells you what it will do and what it chose *not* to run, runs it,
+and logs the step.
+
+```
+idea → shape → stack → plan → build → ui → debug → review → secure → qa → ship → learn
+```
+
+Seven skills, one namespace: `/raffy:*` — plus a library of 52 bundled skills from other authors and
+a catalog of every skill on your machine.
 
 | Command | Does |
 |---|---|
+| **`/raffy:setup`** | First run: installs the graphify code map and local skill search, learns every skill on your machine |
+| **`/raffy:guide`** | Routes to the right installed skill for where you are, explains it, and keeps a trail across projects |
 | **`/raffy:scaffold`** | Interviews you, composes a stack from a 144-card knowledge base, and explains every choice it rejected |
 | **`/raffy:secure`** | Fast pre-deploy pass over the eight holes that show up in AI-built apps |
 | **`/raffy:ship`** | Twelve production-readiness items, verified by running them, not by finding a file |
@@ -64,6 +77,29 @@ bunx raffy-kb search "does prisma work under bun"
 bunx raffy-kb stats
 ```
 
+## How it finds the right skill
+
+| Piece | What it is | Cost per session |
+|---|---|---|
+| `skills/guide/knowledge/catalog.tsv` | One line per skill, ~240 curated, in four tiers: core · often · rare · skip | 0 — read through a script, never loaded |
+| `~/.claude/raffy/catalog.local.tsv` | Skills `/raffy:setup` found on *your* machine and ranked | 0 |
+| `library/` | 52 skills bundled from other authors (MIT / Apache-2.0 only), outside `skills/` | 0 — the guide reads one when it needs it |
+| `hooks/prompt.ts` | Before each message: one line naming the skill that fits, only on a strong match | ~25 tokens when it speaks, 0 otherwise |
+| Vectors | `all-MiniLM-L6-v2`, ONNX, 384 dims, in SQLite — the same model ruflo uses. Optional | 0 |
+
+## Bundled skills and credits
+
+`library/` holds copies of other people's skills so the guide can use them with nothing installed.
+Each has a `SOURCE.json` with its origin and license, and every license text is in
+`library/licenses/`. `scripts/vendor.ts` refreshes them and refuses any source without a permissive
+license — so `anthropics/skills`, `vercel-labs/agent-skills`, `vercel-labs/next-skills` and the
+figma plugin are cataloged but not bundled.
+
+From: `mattpocock/skills` · `addyosmani/agent-skills` · `pbakaus/impeccable` · `shadcn/ui` ·
+`wshobson/agents` · `kylezantos/design-motion-principles` · `coreyhaines31/marketingskills` ·
+`resciencelab/opc-skills` · `obra/superpowers` · `vercel-labs/skills` · `ayghri/i-have-adhd` ·
+`nextlevelbuilder/ui-ux-pro-max-skill` · `Panniantong/Agent-Reach` · `Orchestra-Research/AI-Research-SKILLs`.
+
 ## Install
 
 ```bash
@@ -71,31 +107,33 @@ claude plugin marketplace add rftglyv/raffy-skills
 claude plugin install raffy@raffy-skills
 ```
 
-Then `/raffy:scaffold` in an empty directory.
+Then `/raffy:guide` in any repo — or `/raffy:scaffold` in an empty directory.
 
 ## Layout
 
 ```
 .claude-plugin/          plugin + marketplace manifests
 skills/
+  setup/                 SKILL.md · setup.ts
+  guide/                 SKILL.md · skills.md · catalog.tsv · catalog.ts · inventory.ts · journey.ts · embed.ts
   scaffold/              SKILL.md · 8 references · 19 knowledge layers · kb.ts
   secure/                SKILL.md · checks.md · scan.ts
   ship/                  SKILL.md · readiness.md
   qa-audit/              SKILL.md · 5 references · parse_findings.py
   drill/                 SKILL.md · concepts.md
+library/                 52 bundled skills · sources.json · licenses/ · INDEX.tsv
+hooks/                   hooks.json · prompt.ts (UserPromptSubmit)
 packages/raffy-kb/       npm package: CLI + statusline
 ```
 
 ## Developing
 
-`claude plugin install` **copies** the repo into
-`~/.claude/plugins/cache/raffy-skills/raffy/<version>/`. Editing files here changes nothing until
-you bump the version and reinstall:
+Installed from a local directory marketplace, the plugin **loads in place** from this repo: edits
+take effect at the next session start or after `/reload-plugins`. Bump the version only to release:
 
 ```bash
-# bump "version" in .claude-plugin/plugin.json first
-claude plugin marketplace update raffy-skills
-claude plugin install raffy@raffy-skills
+# bump "version" in .claude-plugin/plugin.json, then
+claude plugin update raffy@raffy-skills
 ```
 
 Scripts referenced from a `SKILL.md` must use `${CLAUDE_PLUGIN_ROOT}` — the runtime path is the

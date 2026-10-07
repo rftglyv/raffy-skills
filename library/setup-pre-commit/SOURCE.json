@@ -1,0 +1,8 @@
+{
+  "id": "setup-pre-commit",
+  "repo": "mattpocock/skills",
+  "license": "MIT",
+  "copiedFrom": "~/.agents/skills/setup-pre-commit",
+  "hash": "5ef84ac78460",
+  "vendoredAt": "2026-10-07"
+}

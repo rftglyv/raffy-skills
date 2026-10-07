@@ -1,10 +1,19 @@
 {
   "name": "raffy",
-  "version": "0.4.0",
-  "description": "Autonomous whole-product QA audits. Introspects a repo, fans out parallel domain agents, verifies the severe findings against source, and emits tracker-ready findings docs with acceptance criteria.",
+  "version": "0.6.0",
+  "description": "The front door to your Claude Code skills. Knows every installed skill \u2014 raffy's own and everyone else's \u2014 routes you to the right one for where your project is, explains what it will do and why, and keeps a trail from idea to production. Ships scaffold, secure, qa-audit, ship and drill for the stages nobody else covers well.",
   "author": {
     "name": "rftglyv",
     "url": "https://github.com/rftglyv"
   },
-  "keywords": ["qa", "audit", "security", "performance", "code-review", "linear"]
+  "keywords": [
+    "router",
+    "skills",
+    "guide",
+    "scaffold",
+    "security",
+    "qa",
+    "launch",
+    "learning"
+  ]
 }
