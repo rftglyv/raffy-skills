@@ -18,6 +18,7 @@ import { existsSync, mkdirSync, readFileSync, appendFileSync } from "node:fs";
 import { join, resolve, basename } from "node:path";
 import { spawnSync } from "node:child_process";
 import { RAFFY_HOME, embedder, vectorDb, dot, fromBlob, toBlob } from "./embed.ts";
+import { due } from "../../drill/scripts/ledger.ts";
 
 export type Entry = { id: string; at: string; kind: "decision" | "fact" | "pref"; text: string; why?: string; tags?: string[]; status?: "superseded"; supersedes?: string };
 const KINDS = ["decision", "fact", "pref"];
@@ -92,6 +93,11 @@ export function brief(project: string, afterCompact = false): string[] {
   const prefs = active(project).filter((e) => e.kind === "pref").slice(0, 3);
   if (decisions.length) { out.push("decided:"); for (const e of decisions) out.push(`  ${e.text}${e.why ? ` — ${e.why}` : ""}`); }
   if (prefs.length) out.push(`you prefer: ${prefs.map((e) => e.text).join("; ")}`);
+  // One line, only when reviews are due — earned skill fades without use.
+  try {
+    const d = due();
+    if (d.length) out.push(`drill: ${d.length} concept${d.length > 1 ? "s" : ""} due for review (${d.slice(0, 3).map((r) => r.concept).join(", ")}) — /raffy:drill, ~5 min`);
+  } catch {}
   return out.slice(0, 10);
 }
 
