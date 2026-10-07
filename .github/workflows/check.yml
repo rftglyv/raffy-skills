@@ -54,6 +54,14 @@ jobs:
           test -z "$quiet"
           printf 'not json' | bun hooks/prompt.ts
 
+      # The doctor must run on a machine with nothing installed.
+      - name: doctor
+        env: { CLAUDE_CONFIG_DIR: /tmp/empty-claude }
+        run: |
+          bun skills/doctor/scripts/doctor.ts budget . | grep -q "tokens load before your first prompt"
+          bun skills/doctor/scripts/doctor.ts skills . --json | node -e "JSON.parse(require('fs').readFileSync(0))"
+          bun skills/doctor/scripts/doctor.ts fire "write tests first" | grep -q "estimate"
+
       # The dashboard reads everything and writes nothing; it must work on a
       # machine with no sessions and no raffy history.
       - name: dashboard

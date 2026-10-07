@@ -13,12 +13,13 @@ and logs the step.
 idea → shape → stack → plan → build → ui → debug → review → secure → qa → ship → learn
 ```
 
-Seven skills, one namespace: `/raffy:*` — plus a library of 52 bundled skills from other authors and
+Eight skills, one namespace: `/raffy:*` — plus a library of 52 bundled skills from other authors and
 a catalog of every skill on your machine.
 
 | Command | Does |
 |---|---|
 | **`/raffy:setup`** | First run: installs the graphify code map and local skill search, learns every skill on your machine |
+| **`/raffy:doctor`** | What your setup costs before the first prompt, in tokens per source; weak or competing skills; which skill a sentence would hit |
 | **`/raffy:guide`** | Routes to the right installed skill for where you are, explains it, and keeps a trail across projects |
 | **`/raffy:scaffold`** | Interviews you, composes a stack from a 144-card knowledge base, and explains every choice it rejected |
 | **`/raffy:secure`** | Fast pre-deploy pass over the eight holes that show up in AI-built apps |
@@ -128,6 +129,7 @@ Then `/raffy:guide` in any repo — or `/raffy:scaffold` in an empty directory.
 .claude-plugin/          plugin + marketplace manifests
 skills/
   setup/                 SKILL.md · setup.ts
+  doctor/                SKILL.md · doctor.ts
   guide/                 SKILL.md · skills.md · catalog.tsv · catalog.ts · inventory.ts · journey.ts · embed.ts
   scaffold/              SKILL.md · 8 references · 19 knowledge layers · kb.ts
   secure/                SKILL.md · checks.md · scan.ts
