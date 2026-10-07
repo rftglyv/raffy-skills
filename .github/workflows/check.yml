@@ -125,3 +125,15 @@ jobs:
       # parse_findings.py is the contract between qa-audit and any tracker.
       - name: findings parser imports
         run: python3 -c "import ast,sys; ast.parse(open('skills/qa-audit/scripts/parse_findings.py').read())"
+
+  # The menu-bar app must build, and read the dashboard data, on a clean Mac.
+  native:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: build RaffyBar
+        run: sh native/build.sh
+      - name: reads the dashboard
+        env: { RAFFY_HOME: /tmp/raffy-native, CLAUDE_CONFIG_DIR: /tmp/empty-claude }
+        run: native/build/RaffyBar.app/Contents/MacOS/RaffyBar --dump | grep -q "0 projects"
