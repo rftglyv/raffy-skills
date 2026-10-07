@@ -16,6 +16,7 @@ Every drill is real code from a real project with a real defect. Nothing invente
 An agent produces confident, plausible, wrong answers. A user who cannot evaluate the output is
 not supervising — they are hoping. The measurable version of that gap:
 
+- **L0 · Not yet** — every concept starts here; nothing earned.
 - **L1 · Approve** — reads the diff, can say whether it did what was asked.
 - **L2 · Choose** — presented with two approaches and their tradeoffs, picks correctly and can say
   why.
@@ -35,8 +36,9 @@ cat .raffy/progress.md 2>/dev/null
 ```
 
 The ledger holds a level per concept plus the hit/miss streak. `weakest` is the drill list — it
-returns everything not yet at L3, worst first. **No ledger?** This is their first session — say so,
-start at L1, and it is created on the first `record`.
+returns everything not yet at L3, worst first. **No ledger?** This is their first session — say so.
+Every concept starts at **L0** (not yet earned); two consecutive hits make it L1. The ledger file is
+created on the first `record`.
 
 Then ask what they want to work on, or pick from the weakest concepts in the ledger. Do not run
 more than **five drills** in a sitting; attention is the constraint, not material.
