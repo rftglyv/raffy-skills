@@ -45,6 +45,14 @@ jobs:
           test -z "$quiet"
           printf 'not json' | bun hooks/prompt.ts
 
+      # The dashboard reads everything and writes nothing; it must work on a
+      # machine with no sessions and no raffy history.
+      - name: dashboard
+        env: { RAFFY_HOME: /tmp/raffy-dash, CLAUDE_CONFIG_DIR: /tmp/empty-claude }
+        run: |
+          bun tui/dash.ts --once | grep -q "0 projects"
+          bun tui/dash.ts --json | node -e "JSON.parse(require('fs').readFileSync(0))"
+
       # Memory round-trip, and the session brief that reads it back.
       - name: memory and session brief
         env: { RAFFY_HOME: /tmp/raffy-mem }

@@ -2,7 +2,10 @@ _issues.json
 _ledger.jsonl
 __pycache__/
 .DS_Store
-.raffy/
+.raffy/*
+# raffy's own trail is part of the repo: what was built, and why
+!.raffy/journey.jsonl
+!.raffy/memory.jsonl
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm

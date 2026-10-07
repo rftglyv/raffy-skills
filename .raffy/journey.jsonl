@@ -1,0 +1,5 @@
+{"at":"2026-10-07T01:54:34.709Z","skill":"raffy:guide","phase":"build","status":"done","note":"guide, catalog (272 skills), 52-skill library, setup, prompt hook — PR #1"}
+{"at":"2026-10-07T01:54:34.721Z","skill":"raffy:memory","phase":"build","status":"done","note":"project memory + session-start brief — PR #2"}
+{"at":"2026-10-07T01:54:34.732Z","skill":"raffy:guide","phase":"build","status":"done","note":"voice: level-aware, options when unsure, Learned line — PR #3"}
+{"at":"2026-10-07T01:54:34.743Z","skill":"raffy:guide","phase":"qa","status":"done","note":"4 live headless runs; fixed skipped explanation + permission matching — PR #4"}
+{"at":"2026-10-07T01:54:34.754Z","skill":"raffy:drill","phase":"qa","status":"done","note":"live drill + ship runs on an app clone; fixed L0/L1 mismatch — PR #5"}
