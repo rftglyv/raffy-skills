@@ -43,6 +43,10 @@ const server = Bun.serve({
   hostname: "127.0.0.1",
   port,
   fetch(req) {
+    // 127.0.0.1 keeps other machines out, not other web pages: a site can rebind its
+    // DNS name to 127.0.0.1 and read this API as same-origin. Only answer our own names.
+    const host = req.headers.get("host");
+    if (host !== `127.0.0.1:${server.port}` && host !== `localhost:${server.port}`) return new Response("forbidden", { status: 403 });
     const { pathname } = new URL(req.url);
     if (pathname.startsWith("/api/")) return query(pathname.slice(5));
     if (pathname === "/") return new Response(page, { headers: { "content-type": "text/html; charset=utf-8" } });

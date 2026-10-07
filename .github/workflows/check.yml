@@ -94,6 +94,7 @@ jobs:
           bun tui/web.ts --port 4790 & sleep 2
           curl -sf localhost:4790/api/projects | node -e "JSON.parse(require('fs').readFileSync(0))"
           curl -sf localhost:4790/ | grep -q "<title>raffy</title>"
+          test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: rebound.example:4790' localhost:4790/api/sessions)" = "403"
 
       # Memory round-trip, and the session brief that reads it back.
       - name: memory and session brief
