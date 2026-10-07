@@ -1,0 +1,7 @@
+---
+type: regex
+target: last_message
+pattern: "estimat"
+flags: i
+match: contains
+---

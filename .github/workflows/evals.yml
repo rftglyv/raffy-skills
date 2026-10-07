@@ -1,0 +1,43 @@
+name: evals
+
+# Raffy's behaviour checks against a live model: the guide asks the user's
+# level, routes with a Route/Not header, the hook reaches raffy:secure, the
+# guard stops reset --hard, the doctor reports estimated tokens, scaffold
+# interviews first, and the proof check catches a false "tests pass".
+#
+# Costs real tokens, so it runs on demand and on release tags, never on every
+# push. Needs the ANTHROPIC_API_KEY repository secret; without it the job
+# says so and passes.
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+
+      - name: check for the API key
+        id: key
+        env: { KEY: "${{ secrets.ANTHROPIC_API_KEY }}" }
+        run: |
+          if [ -z "$KEY" ]; then echo "ANTHROPIC_API_KEY secret is not set — skipping evals"; echo "skip=1" >> "$GITHUB_OUTPUT"; fi
+
+      - name: run the suite
+        if: steps.key.outputs.skip != '1'
+        env: { ANTHROPIC_API_KEY: "${{ secrets.ANTHROPIC_API_KEY }}" }
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude plugin eval . --ablation none --trust-plugin \
+            --allow-tools "Bash(bun:*)" "Bash(git:*)" "Bash(ls:*)" \
+            --max-cost-usd 5 --no-publish --json evals-result.json
+
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.key.outputs.skip != '1'
+        with: { name: evals, path: "evals-result.json\nevals/results/" }
