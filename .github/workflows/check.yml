@@ -126,14 +126,26 @@ jobs:
       - name: findings parser imports
         run: python3 -c "import ast,sys; ast.parse(open('skills/qa-audit/scripts/parse_findings.py').read())"
 
-  # The menu-bar app must build, and read the dashboard data, on a clean Mac.
-  native:
-    runs-on: macos-latest
+  # The desktop app must build, find bun and read the dashboard on all three
+  # desktop platforms. --dump exits before any window opens, so it runs headless.
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix: { os: [macos-latest, ubuntu-22.04, windows-latest] }
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - name: build RaffyBar
-        run: sh native/build.sh
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: native/raffy-desktop/src-tauri }
+      - name: linux webview deps
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: build
+        working-directory: native/raffy-desktop/src-tauri
+        run: cargo build --release
       - name: reads the dashboard
-        env: { RAFFY_HOME: /tmp/raffy-native, CLAUDE_CONFIG_DIR: /tmp/empty-claude }
-        run: native/build/RaffyBar.app/Contents/MacOS/RaffyBar --dump | grep -q "0 projects"
+        shell: bash
+        env: { RAFFY_ROOT: "${{ github.workspace }}", RAFFY_HOME: "${{ runner.temp }}/raffy", CLAUDE_CONFIG_DIR: "${{ runner.temp }}/claude" }
+        run: native/raffy-desktop/src-tauri/target/release/raffy-desktop --dump | grep -q "0 projects"

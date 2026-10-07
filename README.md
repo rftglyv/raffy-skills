@@ -86,8 +86,12 @@ bun tui/dash.ts --json     # the same data, for a web or native app
 bun tui/web.ts             # the same view in a browser: http://localhost:4747 (127.0.0.1 only)
 ```
 
-On macOS there is also a menu-bar app: `sh native/build.sh`, then `open native/build/RaffyBar.app`
-(SwiftUI, macOS 13+, no Dock icon; it reads `dash.ts --json`, so all three views show the same data).
+There is also a desktop app for macOS, Windows and Linux (Tauri 2). It shows the same page as the
+browser view (`tui/web/index.html`) and reads the same `dash.ts --json`, so all three views agree:
+
+```bash
+cd native/raffy-desktop && bunx @tauri-apps/cli@2 build     # installers in src-tauri/target/release/bundle/
+```
 
 Every project raffy has touched and every Claude Code session on the machine, on one screen: phase,
 last step, decisions and why, recent sessions. Read-only; no server.
@@ -172,8 +176,8 @@ skills/
 scripts/agents.ts        copies the skills for Codex, Cursor and Gemini CLI
 library/                 52 bundled skills · sources.json · licenses/ · INDEX.tsv
 hooks/                   hooks.json · guard.ts (PreToolUse) · proof.ts (Stop) · prompt.ts (UserPromptSubmit) · session.ts (SessionStart)
-native/                  RaffyBar — SwiftUI menu-bar app over dash.ts --json · build.sh
-tui/                     dash.ts (terminal) · web.ts (browser, localhost only) — across projects and sessions
+native/raffy-desktop/    Tauri 2 desktop app: the web dashboard page in a native window
+tui/                     dash.ts (terminal) · web.ts (browser, localhost only) · web/index.html (shared page) — across projects and sessions
 .raffy/                  raffy's own journey and decisions, kept in the repo
 packages/raffy-kb/       npm package: CLI + statusline
 ```

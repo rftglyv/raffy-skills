@@ -13,5 +13,5 @@ __pycache__/
 packages/raffy-kb/knowledge/
 packages/*/node_modules/
 evals/results/
-native/RaffyBar/.build/
-native/build/
+native/raffy-desktop/src-tauri/target/
+native/raffy-desktop/src-tauri/gen/
