@@ -87,7 +87,8 @@ switch (cmd) {
     for (const p of projects) for (const s of scan(p).skills) if (s.source === "project") seen.set(s.name, { src: `project:${p.split("/").pop()}`, description: s.description });
     const agents = join(homedir(), ".agents", "skills");
     if (existsSync(agents)) for (const d of readdirSync(agents)) {
-      if (seen.has(d) || !existsSync(join(agents, d, "SKILL.md"))) continue;
+      // raffy's own copies for other agents (scripts/agents.ts) are not new skills.
+      if (seen.has(d) || !existsSync(join(agents, d, "SKILL.md")) || existsSync(join(agents, d, ".raffy-generated"))) continue;
       const fm = readFileSync(join(agents, d, "SKILL.md"), "utf8").match(/^description:\s*(.+)$/m)?.[1] ?? "";
       seen.set(d, { src: "agents", description: fm.replace(/^["']|["']$/g, "") });
     }
