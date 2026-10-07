@@ -96,6 +96,7 @@ last step, decisions and why, recent sessions. Read-only; no server.
 | `~/.claude/raffy/catalog.local.tsv` | Skills `/raffy:setup` found on *your* machine and ranked | 0 |
 | `library/` | 52 skills bundled from other authors (MIT / Apache-2.0 only), outside `skills/` | 0 — the guide reads one when it needs it |
 | `hooks/guard.ts` | Before each Bash command: asks first for dropping data, resetting a database, force-pushing or deleting broad paths; refuses wiping a disk or home folder. `RAFFY_GUARD=off` disables | 0 — prints only when it stops something |
+| `hooks/proof.ts` | When Claude is about to say "tests pass": checks a test ran this turn, after the last edit, with no failures, and that no test was weakened. Otherwise Claude keeps going. `RAFFY_PROOF=off` disables | 0 — prints only when a claim is unproven |
 | `hooks/prompt.ts` | Before each message: one line naming the skill that fits, only on a strong match | ~25 tokens when it speaks, 0 otherwise |
 | Vectors | `all-MiniLM-L6-v2`, ONNX, 384 dims, in SQLite — the same model ruflo uses. Optional | 0 |
 
@@ -134,7 +135,7 @@ skills/
   qa-audit/              SKILL.md · 5 references · parse_findings.py
   drill/                 SKILL.md · concepts.md
 library/                 52 bundled skills · sources.json · licenses/ · INDEX.tsv
-hooks/                   hooks.json · guard.ts (PreToolUse) · prompt.ts (UserPromptSubmit) · session.ts (SessionStart)
+hooks/                   hooks.json · guard.ts (PreToolUse) · proof.ts (Stop) · prompt.ts (UserPromptSubmit) · session.ts (SessionStart)
 tui/                     dash.ts (terminal) · web.ts (browser, localhost only) — across projects and sessions
 .raffy/                  raffy's own journey and decisions, kept in the repo
 packages/raffy-kb/       npm package: CLI + statusline
