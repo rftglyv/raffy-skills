@@ -6,6 +6,7 @@
  *   bun catalog.ts find <words…> [--phase p] [--domain d] [-n 5] [--all]
  *   bun catalog.ts stats [project]       tiers × availability, plus skills the catalog does not know
  *   bun catalog.ts enable <id> [--yes]   link a dormant skill from ~/.agents/skills into Claude
+ *   bun catalog.ts list --json           every row with its availability (for the dashboards)
  *
  * Rows come from two files: knowledge/catalog.tsv (curated, ships with raffy)
  * and ~/.claude/raffy/catalog.local.tsv (learned by /raffy:setup from this
@@ -155,6 +156,12 @@ if (import.meta.main) {
       const hits = await findSkills(words.join(" "), { phase: flag("--phase"), domain: flag("--domain"), n: Number(flag("-n") ?? 5), all: argv.includes("--all") });
       if (!hits.length) { console.log("no match — try other words, or drop --phase"); break; }
       for (const h of hits) console.log(`${h.r.id} · ${h.r.tier} · ${h.st} · ${h.r.when}${h.hint ? `  → ${h.hint}` : ""}`);
+      break;
+    }
+    case "list": {
+      const rows = load();
+      const { status, hint } = availability(rows, ".");
+      console.log(JSON.stringify(rows.map((r) => { const st = status(r); return { ...r, status: st, hint: hint(r, st) }; })));
       break;
     }
     case "stats": {
