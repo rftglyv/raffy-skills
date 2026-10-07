@@ -77,6 +77,16 @@ bunx raffy-kb search "does prisma work under bun"
 bunx raffy-kb stats
 ```
 
+## Dashboard
+
+```bash
+bun tui/dash.ts            # ↑↓ select · enter details · r refresh · q quit
+bun tui/dash.ts --json     # the same data, for a web or native app
+```
+
+Every project raffy has touched and every Claude Code session on the machine, on one screen: phase,
+last step, decisions and why, recent sessions. Read-only; no server.
+
 ## How it finds the right skill
 
 | Piece | What it is | Cost per session |
@@ -122,7 +132,9 @@ skills/
   qa-audit/              SKILL.md · 5 references · parse_findings.py
   drill/                 SKILL.md · concepts.md
 library/                 52 bundled skills · sources.json · licenses/ · INDEX.tsv
-hooks/                   hooks.json · prompt.ts (UserPromptSubmit)
+hooks/                   hooks.json · prompt.ts (UserPromptSubmit) · session.ts (SessionStart)
+tui/                     dash.ts — terminal dashboard across projects and sessions
+.raffy/                  raffy's own journey and decisions, kept in the repo
 packages/raffy-kb/       npm package: CLI + statusline
 ```
 
