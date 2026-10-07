@@ -52,6 +52,9 @@ jobs:
         run: |
           bun tui/dash.ts --once | grep -q "0 projects"
           bun tui/dash.ts --json | node -e "JSON.parse(require('fs').readFileSync(0))"
+          bun tui/web.ts --port 4790 & sleep 2
+          curl -sf localhost:4790/api/projects | node -e "JSON.parse(require('fs').readFileSync(0))"
+          curl -sf localhost:4790/ | grep -q "<title>raffy</title>"
 
       # Memory round-trip, and the session brief that reads it back.
       - name: memory and session brief
