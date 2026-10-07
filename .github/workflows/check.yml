@@ -149,6 +149,10 @@ jobs:
       - name: build
         working-directory: native/raffy-desktop/src-tauri
         run: cargo build --release
+      # Quoting and allowlists: the only things between the page and a shell.
+      - name: unit tests
+        working-directory: native/raffy-desktop/src-tauri
+        run: cargo test --release
       - name: reads the dashboard
         shell: bash
         env: { RAFFY_ROOT: "${{ github.workspace }}", RAFFY_HOME: "${{ runner.temp }}/raffy", CLAUDE_CONFIG_DIR: "${{ runner.temp }}/claude" }

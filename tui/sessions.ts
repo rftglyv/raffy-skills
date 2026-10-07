@@ -95,9 +95,11 @@ export function sessions(days = 14): SessionStats[] {
   return out.sort((a, b) => b.lastAt - a.lastAt);
 }
 
-export function byDay(list: SessionStats[]): { day: string; tokens: Tokens }[] {
+// Only days inside the window: a long session active today also carries its older days.
+export function byDay(list: SessionStats[], days = 14): { day: string; tokens: Tokens }[] {
+  const from = new Date(Date.now() - (days - 1) * 86_400_000).toISOString().slice(0, 10);
   const m: Record<string, Tokens> = {};
-  for (const s of list) for (const [d, t] of Object.entries(s.byDay)) add((m[d] ??= zero()), t);
+  for (const s of list) for (const [d, t] of Object.entries(s.byDay)) if (d >= from) add((m[d] ??= zero()), t);
   return Object.entries(m).sort(([a], [b]) => a.localeCompare(b)).map(([day, tokens]) => ({ day, tokens }));
 }
 
@@ -106,7 +108,7 @@ if (import.meta.main) {
   const days = Number(argv[argv.indexOf("--days") + 1]) || 14;
   const list = sessions(days);
   if (argv.includes("--json")) {
-    console.log(JSON.stringify({ sessions: list, days: byDay(list) }));
+    console.log(JSON.stringify({ sessions: list, days: byDay(list, days), window: days }));
   } else {
     const fmt = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${Math.round(n / 1e3)}k` : String(n));
     console.log(`${list.length} sessions in ${days} days · ${list.filter((s) => s.active).length} active now`);
