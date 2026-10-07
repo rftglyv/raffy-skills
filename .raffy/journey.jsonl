@@ -3,3 +3,4 @@
 {"at":"2026-10-07T01:54:34.732Z","skill":"raffy:guide","phase":"build","status":"done","note":"voice: level-aware, options when unsure, Learned line — PR #3"}
 {"at":"2026-10-07T01:54:34.743Z","skill":"raffy:guide","phase":"qa","status":"done","note":"4 live headless runs; fixed skipped explanation + permission matching — PR #4"}
 {"at":"2026-10-07T01:54:34.754Z","skill":"raffy:drill","phase":"qa","status":"done","note":"live drill + ship runs on an app clone; fixed L0/L1 mismatch — PR #5"}
+{"at":"2026-10-07T02:12:29.606Z","skill":"raffy:scaffold","phase":"qa","status":"done","note":"full live scaffold run (yoga booking app): 23 tests pass, typecheck clean; fixed scaffold writing into drill's ledger — PR #8"}
