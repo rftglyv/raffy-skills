@@ -121,7 +121,9 @@ On macOS with Docker Desktop, cases that grant Bash refuse to run locally: Docke
 `library/` holds copies of other people's skills so the guide can use them with nothing installed.
 Each has a `SOURCE.json` with its origin and license, and every license text is in
 `library/licenses/`. `scripts/vendor.ts` refreshes them and refuses any source without a permissive
-license — so `anthropics/skills`, `vercel-labs/agent-skills`, `vercel-labs/next-skills` and the
+license. `bun scripts/vendor.ts check` reports bundled skills that drifted from their installed source
+or were edited by hand; `--upstream` also asks GitHub whether the source repo moved (CI runs that
+monthly). So `anthropics/skills`, `vercel-labs/agent-skills`, `vercel-labs/next-skills` and the
 figma plugin are cataloged but not bundled.
 
 From: `mattpocock/skills` · `addyosmani/agent-skills` · `pbakaus/impeccable` · `shadcn/ui` ·

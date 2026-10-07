@@ -112,6 +112,10 @@ jobs:
           bun skills/scaffold/scripts/kb.ts build
           bun skills/scaffold/scripts/kb.ts search "does prisma work under bun" -n 1 | grep -q Prisma
 
+      # A bundled skill must match the hash it was bundled with: no silent hand edits.
+      - name: bundled library unchanged
+        run: bun scripts/vendor.ts check | tee /tmp/lib.txt && ! grep -q "edited by hand" /tmp/lib.txt
+
       - name: manifests valid
         run: |
           bunx --bun json -h > /dev/null 2>&1 || true

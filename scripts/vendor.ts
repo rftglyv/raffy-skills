@@ -3,6 +3,7 @@
  * Bundle other people's skills into library/, license-checked.
  *
  *   bun scripts/vendor.ts [--tiers core,often] [--dry]
+ *   bun scripts/vendor.ts check [--upstream]     which bundled skills are stale (read-only)
  *
  * Bundled skills live in library/, NOT skills/. Claude Code only lists what is
  * under skills/, so a bundled skill costs zero context until the guide reads it
@@ -47,6 +48,7 @@ function hashDir(dir: string): string {
   const h = createHash("sha256");
   (function walk(d: string) {
     for (const n of readdirSync(d).sort()) {
+      if (n === "SOURCE.json") continue;   // provenance, written after the hash
       const f = join(d, n);
       if (statSync(f).isDirectory()) walk(f); else h.update(n).update(readFileSync(f));
     }
@@ -58,6 +60,41 @@ function licenseText(repo: string): string | undefined {
   const r = spawnSync("gh", ["api", `repos/${repo}/license`, "--jq", ".content"], { encoding: "utf8" });
   if (r.status !== 0 || !r.stdout.trim()) return undefined;
   return Buffer.from(r.stdout.trim(), "base64").toString("utf8");
+}
+
+// ── check: is anything bundled out of date? ──────────────────────────────────
+if (argv[0] === "check") {
+  const upstream = argv.includes("--upstream");
+  const lastPush = new Map<string, string>();
+  const report: string[] = [];
+  let stale = 0;
+  for (const line of readFileSync(join(LIB, "INDEX.tsv"), "utf8").split("\n")) {
+    if (!line || line.startsWith("#")) continue;
+    const [id, dir, repo] = line.split("\t");
+    const src = JSON.parse(readFileSync(join(LIB, dir, "SOURCE.json"), "utf8"));
+    const notes: string[] = [];
+    if (hashDir(join(LIB, dir)) !== src.hash) notes.push("bundled copy was edited by hand — rerun vendor.ts or keep the edit on purpose");
+    // Local: the installed copy changed since we bundled it (npx skills update, a plugin update).
+    const from = locate(id);
+    if (from) {
+      const tmp = join(LIB, ".check-tmp");
+      rmSync(tmp, { recursive: true, force: true });
+      cpSync(from, tmp, { recursive: true, dereference: true, filter: (p) => !/\/(\.git|node_modules|__pycache__|\.DS_Store)(\/|$)/.test(p) });
+      if (hashDir(tmp) !== src.hash) notes.push("installed copy differs — rerun vendor.ts to refresh");
+      rmSync(tmp, { recursive: true, force: true });
+    } else notes.push("no longer installed here — keeps the bundled copy");
+    // Upstream: the source repo was pushed after we bundled.
+    if (upstream) {
+      if (!lastPush.has(repo)) lastPush.set(repo, spawnSync("gh", ["api", `repos/${repo}`, "--jq", ".pushed_at"], { encoding: "utf8" }).stdout.trim());
+      const pushed = lastPush.get(repo)!;
+      if (pushed && pushed.slice(0, 10) > src.vendoredAt) notes.push(`${repo} pushed ${pushed.slice(0, 10)} (bundled ${src.vendoredAt}) — update the install, then vendor.ts`);
+    }
+    if (notes.some((n) => !n.startsWith("no longer"))) stale++;
+    if (notes.length) report.push(`  ${id.padEnd(44)} ${notes.join(" · ")}`);
+  }
+  console.log(`${stale} of ${readFileSync(join(LIB, "INDEX.tsv"), "utf8").split("\n").filter((l) => l && !l.startsWith("#")).length} bundled skills may be stale${upstream ? "" : " (local check; add --upstream to ask GitHub)"}`);
+  for (const r of report) console.log(r);
+  process.exit(0);
 }
 
 const rows = load().filter((r) => tiers.includes(r.tier) && !["raffy", "builtin", "command"].includes(r.src) && !r.src.startsWith("project:"));
