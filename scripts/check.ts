@@ -17,6 +17,7 @@ const warnings: string[] = [];
 const err = (m: string) => errors.push(m);
 const warn = (m: string) => warnings.push(m);
 
+const read = (f: string) => { try { return readFileSync(f, "utf8"); } catch { return ""; } };
 const rel = (p: string) => p.replace(ROOT + "/", "");
 function walk(dir: string, out: string[] = []): string[] {
   for (const n of readdirSync(dir)) {
@@ -202,6 +203,28 @@ if (existsSync(hooksJson)) {
   for (const groups of Object.values<any[]>(h?.hooks ?? {})) for (const g of groups) for (const c of g.hooks ?? []) {
     for (const m of String(c.command).matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"' ]+)/g)) if (!existsSync(join(ROOT, m[1]))) err(`hooks/hooks.json: ${m[1]} does not exist`);
     if (!c.timeout || c.timeout > 10) warn(`hooks/hooks.json: a hook without a short timeout can stall every prompt`);
+  }
+}
+
+// ── 11 · eval cases ─────────────────────────────────────────────────────────
+// A malformed case is skipped silently by a live run that only happens on
+// release tags — so check its shape on every push instead.
+const evalsDir = join(ROOT, "evals");
+if (existsSync(evalsDir)) {
+  const GRADERS = ["regex", "tool_used", "tool_order", "file_exists", "llm", "baseline"];
+  for (const c of readdirSync(evalsDir).filter((d) => d !== "results" && statSync(join(evalsDir, d)).isDirectory())) {
+    const prompt = read(join(evalsDir, c, "prompt.md"));
+    const fm = prompt.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    if (!fm) { err(`evals/${c}: prompt.md has no frontmatter + body`); continue; }
+    if (fm[1].match(/^name:\s*(.+)$/m)?.[1].trim() !== c) err(`evals/${c}: frontmatter name must equal the directory`);
+    if (!fm[2].trim()) err(`evals/${c}: prompt.md has an empty prompt`);
+    const gdir = join(evalsDir, c, "graders");
+    const graders = existsSync(gdir) ? readdirSync(gdir).filter((f) => f.endsWith(".md")) : [];
+    if (!graders.length) err(`evals/${c}: no graders — the case can never fail`);
+    for (const g of graders) {
+      const type = read(join(gdir, g)).match(/^type:\s*(\S+)/m)?.[1];
+      if (!type || !GRADERS.includes(type)) err(`evals/${c}/graders/${g}: type "${type}" is not one of ${GRADERS.join(", ")}`);
+    }
   }
 }
 

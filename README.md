@@ -101,6 +101,21 @@ last step, decisions and why, recent sessions. Read-only; no server.
 | `hooks/prompt.ts` | Before each message: one line naming the skill that fits, only on a strong match | ~25 tokens when it speaks, 0 otherwise |
 | Vectors | `all-MiniLM-L6-v2`, ONNX, 384 dims, in SQLite — the same model ruflo uses. Optional | 0 |
 
+## Evals
+
+`evals/` holds seven behaviour checks run with `claude plugin eval` against a live model — the
+guide asks the user's level, routes with a Route/Not header, the hook reaches `raffy:secure`, the
+guard stops `git reset --hard`, the doctor reports estimated tokens, scaffold interviews before
+proposing, and the proof check catches a false "tests pass". They cost real tokens, so they run
+on demand and on release tags (`.github/workflows/evals.yml`, needs an `ANTHROPIC_API_KEY` secret).
+
+```bash
+claude plugin eval . --ablation none --trust-plugin --allow-tools "Bash(bun:*)" "Bash(git:*)" --max-cost-usd 5
+```
+
+On macOS with Docker Desktop, cases that grant Bash refuse to run locally: Docker's own symlinks in
+`~/.docker` stop the eval sandbox from guaranteeing it can hide credentials. Run them in CI.
+
 ## Bundled skills and credits
 
 `library/` holds copies of other people's skills so the guide can use them with nothing installed.

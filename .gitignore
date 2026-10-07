@@ -12,3 +12,4 @@ __pycache__/
 
 packages/raffy-kb/knowledge/
 packages/*/node_modules/
+evals/results/
