@@ -34,6 +34,14 @@ jobs:
           bun skills/guide/scripts/journey.ts all | grep -q raffy:guide
           bun skills/guide/scripts/catalog.ts find did I leak api keys | grep -q raffy:secure
 
+      # The guard decides which commands an agent may run without asking.
+      # Every rule has cases that must be caught and cases that must pass.
+      - name: guard rules
+        run: |
+          bun test hooks/guard.test.ts
+          printf '{"tool_input":{"command":"git push --force"}}' | bun hooks/guard.ts | grep -q '"permissionDecision":"ask"'
+          test -z "$(printf '{"tool_input":{"command":"bun test"}}' | bun hooks/guard.ts)"
+
       # The prompt hook runs before every message a user sends. It must answer
       # fast, say nothing on unrelated prompts, and never fail.
       - name: prompt hook

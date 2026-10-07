@@ -5,3 +5,4 @@
 {"at":"2026-10-07T01:54:34.754Z","skill":"raffy:drill","phase":"qa","status":"done","note":"live drill + ship runs on an app clone; fixed L0/L1 mismatch — PR #5"}
 {"at":"2026-10-07T02:12:29.606Z","skill":"raffy:scaffold","phase":"qa","status":"done","note":"full live scaffold run (yoga booking app): 23 tests pass, typecheck clean; fixed scaffold writing into drill's ledger — PR #8"}
 {"at":"2026-10-07T11:29:51.935Z","skill":"raffy:memory","phase":"build","status":"done","note":"compaction-proof brief: open step + last checkpoint"}
+{"at":"2026-10-07T11:32:38.970Z","skill":"raffy:guard","phase":"secure","status":"done","note":"PreToolUse guard: 58 rule tests, verified live (reset --hard stopped)"}
