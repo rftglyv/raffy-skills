@@ -42,6 +42,8 @@ for (const s of skills) {
   const desc = fm[1].match(/^description:\s*(.+)$/m)?.[1]?.trim();
   if (name !== s) err(`${s}/SKILL.md: frontmatter name "${name}" != directory "${s}"`);
   if (!desc) err(`${s}/SKILL.md: no description`);
+  else if (/: /.test(desc)) err(`${s}/SKILL.md: description contains ": " — invalid in a plain YAML scalar; use a dash`);
+  else if (desc.length > 300) warn(`${s}/SKILL.md: description is ${desc.length} chars — it loads into every session; keep it ≤300`);
   else if (desc.length < 120) warn(`${s}/SKILL.md: description is short (${desc.length} chars) — it is the only thing the model sees when deciding to invoke`);
 }
 

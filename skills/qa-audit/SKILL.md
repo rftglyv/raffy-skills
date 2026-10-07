@@ -1,6 +1,6 @@
 ---
 name: qa-audit
-description: Autonomous whole-product audit. Introspects the repo to derive its real user-facing domains, fans out parallel agents to hunt bugs, security holes, performance problems, logic flaws and gaps, verifies the severe claims against source, and emits Linear/Jira-ready findings docs with acceptance criteria. Use when asked to "audit the app", "test the whole app and list the bugs", "find everything wrong", "QA the product", "security + perf review", or to prepare a findings report for a tracker. Not for reviewing a single diff or PR — use a code-review skill for that.
+description: Whole-product audit. Derives the app's real domains, fans out parallel agents for bugs, security, performance and logic gaps, verifies the severe ones, and writes tracker-ready findings. Use for "audit the app" or "find everything wrong". Not for a single diff.
 ---
 
 # Deep Audit

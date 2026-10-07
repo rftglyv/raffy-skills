@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Take a working prototype to production. Checks and fixes the gap that breaks AI-built apps on first contact with real users — environment separation, migrations, error handling, structured logging, health checks, rollback, backups, and CI. Use when asked "is this ready to deploy", "help me launch this", "set up production", "what do I need before going live", or before a first deploy. Not a security pass — run /raffy:secure for that, and run it first.
+description: Takes a working prototype to production — environments, migrations, error handling, logging, health checks, rollback, backups and CI, checked against the repo. Use for "is this ready to deploy" or "help me launch". Run /raffy:secure first.
 ---
 
 # Ship

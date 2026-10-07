@@ -1,6 +1,6 @@
 ---
 name: secure
-description: Fast pre-deploy security pass targeting the specific failure modes that appear in AI-built applications — exposed secrets, missing row-level authorization, unauthenticated write routes, unverified webhooks, open CORS, unvalidated input, and public storage buckets. Runs a mechanical scan, then verifies every hit against source before reporting. Use when asked "is this safe to deploy", "check my app for security holes", "did I leak any keys", "security review before launch", or before any first deploy. For a full multi-domain audit use qa-audit instead; this is the cheap pass that runs in minutes.
+description: Fast pre-deploy security pass for the holes AI-built apps ship with — leaked secrets, missing row-level auth, open write routes, unverified webhooks, open CORS, public buckets. Every hit verified against source. Use for "is this safe to deploy" or "did I leak keys".
 ---
 
 # Secure

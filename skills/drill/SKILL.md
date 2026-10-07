@@ -1,6 +1,6 @@
 ---
 name: drill
-description: Turn the user's own codebase into review exercises so they learn to supervise an agent instead of trusting it. Shows real code with the defect hidden, asks them to call it, reveals, and tracks which concepts they have earned across projects. Use when asked to "quiz me", "teach me to review this", "help me understand my own code", "what should I be watching for", "drill me on security", or after a qa-audit or secure run produces findings worth learning from. Not a tutorial generator — every exercise comes from real code the user owns.
+description: Turns the user's own code into review exercises — shows real code with the defect hidden, asks them to call it, reveals, and tracks what they have earned. Use for "quiz me", "teach me to review this", or after secure or qa-audit finds something worth learning.
 ---
 
 # Drill

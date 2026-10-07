@@ -1,6 +1,6 @@
 ---
 name: scaffold
-description: Interview the user about what they are building, compose a right-sized stack from a knowledge base of ~90 technologies, scaffold it with secure defaults, wire up AI-development tooling, and explain every decision so the user learns to supervise the agent. Use when asked to "start a new project", "set up a new app", "pick a stack", "which database/ORM/framework should I use", "scaffold a SaaS/API/mobile app", "bootstrap a repo", or when someone describes an app idea and needs the first commit. Not for adding a single library to an existing project — read the relevant knowledge card and just add it.
+description: Interviews the user, composes a right-sized stack from 144 knowledge cards, scaffolds it with secure defaults, and explains every choice it rejected. Use for "start a new project", "pick a stack", "which database or framework". Not for adding one library.
 ---
 
 # Scaffold
