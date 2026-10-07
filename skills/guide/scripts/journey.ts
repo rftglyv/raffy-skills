@@ -7,6 +7,8 @@
  *   bun journey.ts log   [project] --skill <id> --phase <p> --status <s> [--note "..."] [--session <id>]
  *                        --status started also requires --why "…" and --not "<skill — reason>"; it prints
  *                        the explain block the guide shows the user before running anything
+ *   bun journey.ts log   [project] --skill <id> --phase <p> --status progress --note "done: …; next: …"
+ *                        a checkpoint inside a long step — what survives a compaction
  *   bun journey.ts show  [project] [-n 10]      last steps, newest last (--json)
  *   bun journey.ts all                          every project the guide has touched (--json)
  *
@@ -26,7 +28,7 @@ import { spawnSync } from "node:child_process";
 
 export const PHASES = ["idea", "shape", "stack", "plan", "build", "ui", "debug", "review", "secure", "qa", "ship", "grow", "learn"] as const;
 type Phase = (typeof PHASES)[number];
-type Status = "started" | "done" | "skipped" | "failed";
+type Status = "started" | "progress" | "done" | "skipped" | "failed";
 type Step = { at: string; skill: string; phase: Phase; status: Status; note?: string; why?: string; not?: string; session?: string };
 
 const argv = process.argv.slice(2);
@@ -85,6 +87,14 @@ function where(p: string) {
   const signals = { commits, manifest, spec, tasks, tests, ui, ci, deploy, raffy, dirty };
 
   // Files give a floor; the journal gives the truth when it exists.
+  // A step that started and has not ended yet is what a compaction must not lose.
+  const ended = (i: number) => steps.slice(i + 1).some((x) => x.skill === steps[i].skill && ["done", "skipped", "failed"].includes(x.status));
+  const openIdx = steps.map((x, i) => (x.status === "started" && !ended(i) ? i : -1)).filter((i) => i >= 0).at(-1);
+  const open = openIdx === undefined ? undefined : {
+    ...steps[openIdx],
+    checkpoint: steps.slice(openIdx + 1).filter((x) => x.skill === steps[openIdx].skill && x.status === "progress").at(-1)?.note,
+  };
+
   let inferred: Phase =
     !manifest && commits === 0 ? (spec ? "stack" : "idea")
     : !manifest ? "stack"
@@ -98,7 +108,7 @@ function where(p: string) {
     basis = `last step: ${last.skill} ${last.status}`;
   }
   const confidence = last ? "high" : manifest || spec ? "medium" : "low";
-  return { project: p, name: basename(p), phase: inferred, basis, confidence, signals, last };
+  return { project: p, name: basename(p), phase: inferred, basis, confidence, signals, last, open };
 }
 
 // ── log ──────────────────────────────────────────────────────────────────────
@@ -106,7 +116,7 @@ function log(p: string) {
   const skill = flag("--skill"), phase = flag("--phase") as Phase, status = (flag("--status") ?? "done") as Status;
   if (!skill || !phase) { console.error("log needs --skill <id> --phase <phase>"); process.exit(2); }
   if (!PHASES.includes(phase)) { console.error(`unknown phase "${phase}" — one of: ${PHASES.join(", ")}`); process.exit(2); }
-  if (!["started", "done", "skipped", "failed"].includes(status)) { console.error(`unknown status "${status}"`); process.exit(2); }
+  if (!["started", "progress", "done", "skipped", "failed"].includes(status)) { console.error(`unknown status "${status}"`); process.exit(2); }
 
   const step: Step = { at: new Date().toISOString(), skill, phase, status };
   const note = flag("--note"); if (note) step.note = note;

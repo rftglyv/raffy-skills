@@ -101,6 +101,10 @@ instructions replace these until it ends — except that route header. Then:
 bun "${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts/journey.ts" log . --skill <id> --phase <phase> --status done|failed|skipped --note "<what now exists>"
 ```
 
+In a run longer than ~15 minutes, checkpoint at each milestone so a compaction loses nothing:
+`journey.ts log . --skill <id> --phase <phase> --status progress --note "done: <what>; next: <what>"`.
+After a compaction the session hook prints the open step and its last checkpoint — resume from there.
+
 When a decision was agreed during the run, record it once:
 `memory.ts remember --kind decision --text "<one line>" --why "<what would change it>" --tags <search words>`.
 Tags carry the search — the local model does not know Postgres is a database, so write

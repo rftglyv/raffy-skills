@@ -15,7 +15,8 @@ try {
   const input = JSON.parse(await Bun.stdin.text() || "{}");
   const cwd: string = input.cwd ?? process.cwd();
   if (existsSync(join(cwd, ".raffy"))) {
-    const lines = brief(cwd);
+    // After a compaction the model has lost the thread; the brief says so and leads with the open step.
+    const lines = brief(cwd, input.source === "compact");
     if (lines.length) console.log(lines.join("\n"));
   }
 } catch {}

@@ -75,13 +75,18 @@ async function rank(project: string, query: string, n: number) {
     .map((x) => x.e);
 }
 
-export function brief(project: string): string[] {
+export function brief(project: string, afterCompact = false): string[] {
   const out: string[] = [];
   const j = spawnSync("bun", [join(import.meta.dir, "journey.ts"), "where", project, "--json"], { encoding: "utf8" });
   try {
     const w = JSON.parse(j.stdout);
     const last = w.last ? ` · last: ${w.last.skill} ${w.last.status}${w.last.note ? ` — ${w.last.note}` : ""}` : "";
-    out.push(`raffy · ${basename(resolve(project))} · phase ${w.phase} (${w.confidence})${last}`);
+    out.push(`raffy · ${basename(resolve(project))} · phase ${w.phase} (${w.confidence})${w.open ? "" : last}`);
+    if (w.open) {
+      const mins = Math.round((Date.now() - Date.parse(w.open.at)) / 60000);
+      out.push(`${afterCompact ? "context was compacted — resume this: " : "in progress: "}${w.open.skill} (started ${mins < 90 ? `${mins}m` : `${Math.round(mins / 60)}h`} ago) — ${w.open.why ?? w.open.note ?? ""}`);
+      if (w.open.checkpoint) out.push(`  last checkpoint: ${w.open.checkpoint}`);
+    }
   } catch {}
   const decisions = active(project).filter((e) => e.kind !== "pref").sort((a, b) => b.at.localeCompare(a.at)).slice(0, 5);
   const prefs = active(project).filter((e) => e.kind === "pref").slice(0, 3);
