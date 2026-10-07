@@ -64,6 +64,10 @@ jobs:
           bun skills/guide/scripts/memory.ts remember /tmp/proj --kind decision --text "auth is magic-link only" --why "no password resets" --tags login,auth
           bun skills/guide/scripts/memory.ts recall /tmp/proj login | grep -q magic-link
           printf '{"cwd":"/tmp/proj"}' | bun hooks/session.ts | grep -q "magic-link"
+          bun skills/guide/scripts/journey.ts log /tmp/proj --skill x --phase build --status started --why w --not n
+          bun skills/guide/scripts/journey.ts log /tmp/proj --skill x --phase build --status progress --note "done: a; next: b"
+          printf '{"cwd":"/tmp/proj","source":"compact"}' | bun hooks/session.ts | grep -q "context was compacted"
+          printf '{"cwd":"/tmp/proj","source":"compact"}' | bun hooks/session.ts | grep -q "next: b"
           empty=$(mktemp -d) && test -z "$(printf '{"cwd":"%s"}' "$empty" | bun hooks/session.ts)"
 
       # The knowledge base must index without loss.
