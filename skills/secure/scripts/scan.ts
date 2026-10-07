@@ -130,10 +130,20 @@ let scanned = 0;
 const SCAN_VENDORED = process.argv.includes("--vendored");
 const vendored: string[] = [];
 
+/** A real provenance record (upstream repo + content hash), not any file that happens to share the name. */
+function isVendored(file: string): boolean {
+  try {
+    const j = JSON.parse(readFileSync(file, "utf8"));
+    return typeof j.repo === "string" && j.repo.includes("/") && typeof j.hash === "string" && j.hash.length >= 8;
+  } catch {
+    return false;
+  }
+}
+
 function walk(dir: string) {
   let entries: string[];
   try { entries = readdirSync(dir); } catch { return; }
-  if (!SCAN_VENDORED && resolve(dir) !== resolve(ROOT) && entries.includes("SOURCE.json")) {
+  if (!SCAN_VENDORED && resolve(dir) !== resolve(ROOT) && entries.includes("SOURCE.json") && isVendored(join(dir, "SOURCE.json"))) {
     vendored.push(relative(ROOT, dir));
     return;
   }

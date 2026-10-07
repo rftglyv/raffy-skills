@@ -6,7 +6,7 @@
  *   bun tui/sessions.ts [--days 14] [--json]
  *
  * Per session: title, folder, model, started/last activity, assistant turns,
- * and tokens (input, output, cache read, cache write). Plus totals per day.
+ * and tokens (input, output, cache read, cache write), subagents included. Plus totals per day.
  * "Active" means the transcript was written in the last 2 minutes.
  *
  * Transcripts reach tens of MB, so results are cached per file by size and
@@ -78,17 +78,38 @@ export function sessions(days = 14): SessionStats[] {
   if (existsSync(PROJECTS)) for (const dir of readdirSync(PROJECTS)) {
     let files: string[] = [];
     try { files = readdirSync(join(PROJECTS, dir)).filter((f) => f.endsWith(".jsonl")); } catch { continue; }
-    for (const f of files) {
-      const p = join(PROJECTS, dir, f);
-      const st = statSync(p);
-      if (st.mtimeMs < cutoff) continue;
+    // Cached parse; a file deleted between listing and reading is skipped, not fatal.
+    const read = (p: string, id: string): (Cached & { mtimeMs: number }) | null => {
+      let st;
+      try { st = statSync(p); } catch { return null; }
       const hit = cache[p];
-      const c: Cached = hit && hit.size === st.size && hit.mtime === st.mtimeMs ? hit : { ...parse(p, f.replace(".jsonl", "")), size: st.size, mtime: st.mtimeMs };
+      let c: Cached;
+      try { c = hit && hit.size === st.size && hit.mtime === st.mtimeMs ? hit : { ...parse(p, id), size: st.size, mtime: st.mtimeMs }; } catch { return null; }
       fresh[p] = c;
+      return { ...c, mtimeMs: st.mtimeMs };
+    };
+    for (const f of files) {
+      const id = f.replace(".jsonl", "");
+      const c = read(join(PROJECTS, dir, f), id);
+      if (!c) continue;
+      // Subagents (Agent/Task tool) write their own transcripts; their tokens are this session's too.
+      let lastAt = c.mtimeMs;
+      const tokens = { ...c.tokens }, days: Record<string, Tokens> = Object.fromEntries(Object.entries(c.byDay).map(([d, t]) => [d, { ...t }]));
+      const subDir = join(PROJECTS, dir, id, "subagents");
+      let subs: string[] = [];
+      try { subs = readdirSync(subDir).filter((x) => x.endsWith(".jsonl")); } catch {}
+      for (const sf of subs) {
+        const sc = read(join(subDir, sf), sf);
+        if (!sc) continue;
+        add(tokens, sc.tokens);
+        for (const [d, t] of Object.entries(sc.byDay)) add((days[d] ??= zero()), t);
+        lastAt = Math.max(lastAt, sc.mtimeMs);
+      }
+      if (lastAt < cutoff) continue;
       // Test runs and scratch folders are not real work.
       if (!c.cwd || /^\/(private\/)?(tmp|var\/folders)\//.test(c.cwd) || c.cwd.startsWith(tmpdir()) || c.cwd.includes("/scratchpad/")) continue;
-      const { size, mtime, ...rest } = c;
-      out.push({ ...rest, lastAt: st.mtimeMs, active: Date.now() - st.mtimeMs < ACTIVE_MS });
+      const { size, mtime, mtimeMs, ...rest } = c;
+      out.push({ ...rest, tokens, byDay: days, lastAt, active: Date.now() - lastAt < ACTIVE_MS });
     }
   }
   try { mkdirSync(RAFFY_HOME, { recursive: true }); writeFileSync(CACHE, JSON.stringify(fresh)); } catch {}

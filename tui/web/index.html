@@ -71,7 +71,7 @@ const button = (label, onclick) => { const b = el("button", "act", label); b.onc
 // Every change asks first; the desktop side validates the argument again.
 async function run(action, arg, question) {
   if (!confirm(question)) return;
-  try { toast(await act(action, arg)); delete cache.skills; load(); } catch (e) { toast(String(e)); }
+  try { toast(await act(action, arg)); delete cache.skills; delete cache.budget; load(); } catch (e) { toast(String(e)); }
 }
 
 function table(head, rows) {
@@ -181,7 +181,7 @@ const views = {
 
 function render() {
   const tabs = document.getElementById("tabs"); tabs.replaceChildren();
-  Object.entries(TABS).forEach(([k, label]) => { const b = el("button", null, label); b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(k === tab)); b.onclick = () => { tab = k; render(); if (LIVE.has(k) || !cache[k]) load(); }; tabs.append(b); });
+  Object.entries(TABS).forEach(([k, label]) => { const b = el("button", null, label); b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(k === tab)); b.onclick = () => { tab = k; render(); if (LIVE.has(k) || !cache[k] || cache[k] instanceof Error) load(); }; tabs.append(b); });
   const view = document.getElementById("view"); view.replaceChildren();
   if (cache[tab] instanceof Error) view.append(el("div", "panel empty", TAURI ? "Could not read this — is bun installed and raffy set up? (" + cache[tab].message + ")" : "Server stopped or failed — rerun bun tui/web.ts (" + cache[tab].message + ")"));
   else if (cache[tab]) view.append(views[tab](cache[tab]));

@@ -27,13 +27,14 @@ const QUERIES: Record<string, string[]> = {
   budget: ["skills/doctor/scripts/doctor.ts", "budget", ".", "--json"],
 };
 
-function query(name: string): Response {
-  const args = QUERIES[name];
-  if (!args) return new Response("not found", { status: 404 });
-  const [script, ...rest] = args;
-  const out = Bun.spawnSync([process.execPath, join(ROOT, script), ...rest], { cwd: homedir() });
-  if (!out.success) return Response.json({ error: out.stderr.toString().trim().split("\n").at(-1) }, { status: 500 });
-  return new Response(out.stdout, { headers: { "content-type": "application/json" } });
+// Async: a slow script (doctor runs hooks) must not hold up every other request.
+async function query(name: string): Promise<Response> {
+  if (!Object.hasOwn(QUERIES, name)) return new Response("not found", { status: 404 });
+  const [script, ...rest] = QUERIES[name];
+  const proc = Bun.spawn([process.execPath, join(ROOT, script), ...rest], { cwd: homedir(), stdout: "pipe", stderr: "pipe" });
+  const [out, err, code] = await Promise.all([new Response(proc.stdout).text(), new Response(proc.stderr).text(), proc.exited]);
+  if (code !== 0) return Response.json({ error: err.trim().split("\n").at(-1) }, { status: 500 });
+  return new Response(out, { headers: { "content-type": "application/json" } });
 }
 
 // The page lives in tui/web/index.html so the desktop app can ship the same file.
