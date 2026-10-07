@@ -1,0 +1,214 @@
+# id	tier	phase	domain	src	when
+# tier: core = general, run regularly · often = common but situational · rare = niche, known · skip = never route, reason in "when"
+# src: raffy · builtin · plugin:<name> · user · command · agents (on disk in ~/.agents/skills, link to enable) · project:<repo>
+# Read with scripts/catalog.ts — never load this whole file into context.
+raffy:guide	core	orient	any	raffy	what next, which skill, where are we
+raffy:scaffold	core	stack	any	raffy	new project; pick a stack with reasons
+raffy:secure	core	secure	web	raffy	pre-deploy security pass, leaked keys
+raffy:qa-audit	core	qa	any	raffy	find everything wrong across the product
+raffy:ship	core	ship	any	raffy	production readiness before first deploy
+raffy:drill	core	learn	any	raffy	practise reviewing your own code
+find-skills	often	orient	any	agents	discover and install a skill for a new kind of job
+mattpocock-skills:ask-matt	rare	orient	any	plugin:mattpocock-skills	route inside Matt's skills only
+flow	rare	orient	any	command	conductor for a spec→plan→build project already using it
+saas-idea-scout-elite	often	idea	business	user	find or score a SaaS idea before building
+marketing-ideas	rare	idea	business	agents	marketing strategies for a software product
+brainstorming	often	idea	any	agents	open-ended ideation before a feature takes shape
+mattpocock-skills:research	core	idea	any	plugin:mattpocock-skills	answer a question from primary sources, saved in repo
+agent-reach	often	idea	any	user	fetch a URL or what people say on Reddit/X/YouTube
+mattpocock-skills:grilling	core	shape	any	plugin:mattpocock-skills	stress-test a plan, one hard question at a time
+mattpocock-skills:grill-with-docs	often	shape	any	plugin:mattpocock-skills	grilling that writes ADRs and a glossary
+mattpocock-skills:grill-me	skip	shape	any	plugin:mattpocock-skills	duplicate of grilling
+batch-grill-me	rare	shape	any	user	grilling with every question at once
+loop-me	rare	shape	any	agents	grill about workflows you want to automate
+spec-driven-development	core	shape	any	user	write a spec before code
+spec	skip	shape	any	command	same as spec-driven-development
+mattpocock-skills:to-spec	often	shape	any	plugin:mattpocock-skills	file the agreed spec to the issue tracker
+mattpocock-skills:domain-modeling	often	shape	any	plugin:mattpocock-skills	pin down domain terms in CONTEXT.md and ADRs
+ubiquitous-language	rare	shape	any	user	extract a glossary from one conversation
+mattpocock-skills:prototype	often	shape	any	plugin:mattpocock-skills	throwaway prototype to answer one design question
+mattpocock-skills:to-questionnaire	rare	shape	any	plugin:mattpocock-skills	turn an open decision into questions for someone else
+elysia-microservice	often	stack	web	user	new service in a Bun + Elysia + Turborepo monorepo
+next-best-practices	often	stack	web	agents	Next.js conventions: RSC boundaries, data, metadata
+planning-and-task-breakdown	core	plan	any	user	split a spec into small verifiable tasks
+plan	skip	plan	any	command	same as planning-and-task-breakdown
+mattpocock-skills:to-tickets	often	plan	any	plugin:mattpocock-skills	tasks into tracker tickets with blocking edges
+mattpocock-skills:wayfinder	rare	plan	any	plugin:mattpocock-skills	work too big for one session, path unclear
+mattpocock-skills:triage	rare	plan	any	plugin:mattpocock-skills	move issues and outside PRs through triage
+request-refactor-plan	often	plan	any	user	plan a refactor as tiny commits, filed as an issue
+mattpocock-skills:setup-matt-pocock-skills	rare	plan	any	plugin:mattpocock-skills	one-time tracker setup before Matt's ticket flow
+tickets	rare	plan	any	user	your plate across GitHub and Linear
+incremental-implementation	core	build	any	user	land a multi-file change in small verified slices
+build	skip	build	any	command	same as incremental-implementation
+mattpocock-skills:implement	often	build	any	plugin:mattpocock-skills	implement one tracker ticket
+mattpocock-skills:tdd	core	build	any	plugin:mattpocock-skills	test-first for logic and regressions
+test-driven-development	often	build	any	user	test-first with Prove-It for bug fixes
+test	skip	build	any	command	same as test-driven-development
+source-driven-development	often	build	any	user	recent or version-sensitive APIs; cite the docs
+doubt-driven-development	often	build	any	user	money, auth, migrations: adversarial check per decision
+mattpocock-skills:codebase-design	often	build	any	plugin:mattpocock-skills	module interfaces, seams, testability
+mattpocock-skills:improve-codebase-architecture	often	build	any	plugin:mattpocock-skills	scan the repo for structural improvements
+design-an-interface	rare	build	any	agents	several radically different module interfaces in parallel
+typescript-advanced-types	often	build	web	agents	generics, conditional and mapped types
+setup-ts-deep-modules	rare	build	web	agents	enforce package boundaries with dependency-cruiser
+migrate-to-shoehorn	rare	build	web	agents	replace `as` in tests with shoehorn
+setup-pre-commit	often	build	web	agents	Husky + lint-staged + typecheck on commit
+git-guardrails-claude-code	often	build	any	agents	hooks that block dangerous git commands
+mattpocock-skills:resolving-merge-conflicts	often	build	any	plugin:mattpocock-skills	an in-progress merge or rebase conflict
+mattpocock-skills:wizard	rare	build	any	plugin:mattpocock-skills	bash wizard for steps only a human can do
+scaffold-exercises	rare	learn	any	agents	exercise folders with problems and solutions
+impeccable	core	ui	web	user	design, critique and polish any web UI
+ui-ux-pro-max	often	ui	mobile	user	style and palette catalogue; mobile, desktop, Flutter
+frontend-design	rare	ui	web	user	aesthetic direction only
+shadcn	often	ui	web	user	add or fix shadcn/ui components and registries
+shadcn-ui	skip	ui	web	agents	older duplicate of shadcn
+shadcn-dashboard	often	ui	web	user	dashboards, admin panels, KPI and chart layouts
+tailwind-design-system	often	ui	web	agents	design tokens and component library on Tailwind v4
+design-motion-principles	often	ui	web	user	build or audit UI motion
+web-design-guidelines	often	ui	web	user	fast UI compliance and a11y check
+goey-toast	rare	ui	web	user	gooey toast component for React
+agentation	rare	ui	web	user	visual feedback toolbar in a Next.js app
+agentation-self-driving	rare	ui	web	user	agent adds design annotations through the toolbar
+figma:figma-design-to-code	often	ui	design	plugin:figma	build a shared figma.com design as code
+figma:figma-generate-design	often	ui	design	plugin:figma	push a page or view from code into Figma
+figma:figma-generate-library	rare	ui	design	plugin:figma	design system in Figma from the codebase
+figma:figma-use	rare	ui	design	plugin:figma	prerequisite for any use_figma call
+figma:figma-code-connect	rare	ui	design	plugin:figma	map Figma components to code
+figma:figma-create-new-file	rare	ui	design	plugin:figma	new Figma, FigJam or Slides file
+figma:figma-generate-diagram	rare	ui	design	plugin:figma	flowchart, ERD or sequence diagram in FigJam
+figma:figma-implement-motion	rare	ui	design	plugin:figma	implement Figma motion in code
+figma:figma-swiftui	rare	ui	mobile	plugin:figma	Figma ↔ SwiftUI
+figma:figma-shaders	rare	ui	design	plugin:figma	shader fills and effects in Figma
+figma:figma-generative-plugins	rare	ui	design	plugin:figma	reusable generative Figma plugin
+figma:figma-use-figjam	rare	ui	design	plugin:figma	use_figma inside FigJam
+figma:figma-use-motion	rare	ui	design	plugin:figma	animate Figma nodes
+figma:figma-use-slides	rare	ui	design	plugin:figma	use_figma inside Figma Slides
+mattpocock-skills:diagnosing-bugs	core	debug	any	plugin:mattpocock-skills	hard, intermittent or slow bugs
+debugging-and-error-recovery	often	debug	any	user	a build or test that just broke
+code-review	core	review	any	builtin	review a diff before merge
+simplify	often	review	any	builtin	clean up changed code for reuse and clarity
+mattpocock-skills:code-review	often	review	any	plugin:mattpocock-skills	review against the spec and repo standards
+code-review-and-quality	rare	review	any	user	teaching-style multi-axis review
+security-review	often	secure	any	builtin	security review of a single diff
+security-and-hardening	often	secure	any	user	while writing auth, input handling, integrations
+qa	often	qa	any	user	you report bugs in chat, the agent files issues
+shipping-and-launch	often	ship	any	user	rollout, monitoring and rollback strategy
+ship	rare	ship	any	command	persona-panel go/no-go after raffy:ship
+github-actions-templates	often	ship	any	agents	CI/CD workflows for test, build, deploy
+copywriting	core	grow	business	user	landing, pricing and product page copy
+seo-geo	often	grow	web	user	search and AI-search visibility, schema, meta
+seo-audit	often	grow	web	agents	diagnose SEO problems on a live site
+no-ai-slop	often	grow	writing	user	make a draft sound human and direct
+edit-article	rare	grow	writing	user	restructure and tighten an article
+writing-fragments	rare	grow	writing	agents	writing: mine raw fragments
+writing-beats	rare	grow	writing	agents	writing: arrange material into beats
+writing-shape	rare	grow	writing	agents	writing: shape material into an article
+mattpocock-skills:teach	often	learn	any	plugin:mattpocock-skills	explain a concept inside this workspace
+mattpocock-skills:handoff	often	handoff	any	plugin:mattpocock-skills	hand the session to another agent as a document
+claude-handoff	rare	handoff	any	agents	hand off to a fresh background agent now
+mattpocock-skills:wait-what	rare	handoff	any	plugin:mattpocock-skills	re-pitch a message that did not land
+mattpocock-skills:writing-for-agents	often	handoff	any	plugin:mattpocock-skills	write skills, AGENTS.md or CLAUDE.md
+writing-great-skills	rare	handoff	any	user	principles for writing skills
+i-have-adhd:i-have-adhd	often	orient	any	plugin:i-have-adhd	action-first, short output shape
+obsidian-vault	rare	handoff	any	user	notes in your Obsidian vault
+orca-cli	rare	build	any	user	Orca worktrees, terminals and browser
+orchestration	rare	build	any	user	supervise several Orca workers
+autopilot	rare	build	any	user	autonomous Linear issue → PR → merge loop
+instructor	often	build	ai-app	agents	structured, validated output from an LLM
+outlines	rare	build	ai-app	agents	grammar-constrained generation
+guidance	rare	build	ai-app	agents	regex and grammar control of LLM output
+dspy	rare	build	ai-app	agents	declarative LLM pipelines with prompt optimisation
+langchain	rare	build	ai-app	agents	agents, chains and RAG with LangChain
+llamaindex	rare	build	ai-app	agents	document ingestion and RAG with LlamaIndex
+crewai	rare	build	ai-app	agents	multi-agent teams with CrewAI
+autogpt	skip	build	ai-app	agents	superseded by modern agent SDKs
+qdrant	often	build	ai-app	agents	production vector search for RAG
+chroma	often	build	ai-app	agents	local embedding store for prototypes
+pinecone	rare	build	ai-app	agents	managed vector database
+faiss	rare	build	ai-app	agents	in-process vector similarity at scale
+sentence-transformers	often	build	ai-app	agents	text and image embeddings
+langsmith	often	debug	ai-app	agents	trace and evaluate LLM calls (LangChain stack)
+phoenix	often	debug	ai-app	agents	open-source LLM tracing and evals
+prompt-guard	often	secure	ai-app	agents	detect prompt injection and jailbreaks
+llamaguard	rare	secure	ai-app	agents	moderation model for input and output
+nemo-guardrails	rare	secure	ai-app	agents	runtime guardrails for LLM apps
+whisper	often	build	ai-app	agents	speech to text
+stable-diffusion	rare	build	ai-app	agents	text-to-image with Diffusers
+clip	rare	build	ai-app	agents	zero-shot image classification and matching
+blip-2	rare	build	ai-app	agents	image captioning and visual QA
+llava	rare	build	ai-app	agents	vision-language chat model
+segment-anything	rare	build	ai-app	agents	image segmentation
+audiocraft	rare	build	ai-app	agents	text-to-music and sound
+llama-cpp	rare	ship	ai-app	agents	run models on CPU or Apple Silicon
+gguf	rare	ship	ai-app	agents	quantise models for llama.cpp
+vllm	rare	ship	ai-app	agents	high-throughput model serving
+sglang	rare	ship	ai-app	agents	structured generation and serving
+tensorrt-llm	rare	ship	ai-app	agents	NVIDIA-optimised inference
+speculative-decoding	rare	ship	ai-app	agents	faster inference via draft models
+modal	rare	ship	ai-app	agents	serverless GPUs
+skypilot	rare	ship	ai-app	agents	multi-cloud GPU jobs
+lambda-labs	rare	ship	ai-app	agents	reserved GPU instances
+mlflow	rare	ship	ml	agents	experiment tracking and model registry
+weights-and-biases	rare	build	ml	agents	experiment tracking and sweeps
+tensorboard	rare	build	ml	agents	training metrics visualisation
+swanlab	rare	build	ml	agents	open-source run tracking
+peft	rare	build	ml	agents	LoRA / QLoRA fine-tuning
+unsloth	rare	build	ml	agents	fast, low-memory fine-tuning
+trl-fine-tuning	rare	build	ml	agents	SFT, DPO, RL fine-tuning with TRL
+axolotl	rare	build	ml	agents	config-driven fine-tuning
+llama-factory	rare	build	ml	agents	no-code fine-tuning WebUI
+grpo-rl-training	rare	build	ml	agents	GRPO reasoning fine-tuning
+simpo	rare	build	ml	agents	reference-free preference optimisation
+openrlhf	rare	build	ml	agents	large-scale RLHF
+verl	rare	build	ml	agents	RL training with verl
+slime	rare	build	ml	agents	RL post-training on Megatron + SGLang
+miles	rare	build	ml	agents	enterprise RL training (slime fork)
+torchforge	rare	build	ml	agents	PyTorch-native agentic RL
+constitutional-ai	rare	build	ml	agents	harmlessness training method
+knowledge-distillation	rare	build	ml	agents	teacher→student model compression
+model-merging	rare	build	ml	agents	merge fine-tuned models with mergekit
+model-pruning	rare	build	ml	agents	Wanda / SparseGPT pruning
+awq	rare	build	ml	agents	4-bit activation-aware quantisation
+gptq	rare	build	ml	agents	post-training 4-bit quantisation
+hqq	rare	build	ml	agents	calibration-free quantisation
+bitsandbytes	rare	build	ml	agents	8/4-bit loading to save GPU memory
+flash-attention	rare	build	ml	agents	faster, leaner attention
+long-context	rare	build	ml	agents	extend context with RoPE / YaRN
+moe-training	rare	build	ml	agents	mixture-of-experts training
+accelerate	rare	build	ml	agents	add distributed training in a few lines
+deepspeed	rare	build	ml	agents	ZeRO and pipeline parallel training
+pytorch-fsdp2	rare	build	ml	agents	FSDP2 sharding for training scripts
+pytorch-lightning	rare	build	ml	agents	Lightning Trainer
+megatron-core	rare	build	ml	agents	very large model training
+torchtitan	rare	build	ml	agents	PyTorch-native LLM pretraining
+ray-train	rare	build	ml	agents	distributed training on Ray
+ray-data	rare	build	ml	agents	scalable ML data processing
+nemo-curator	rare	build	ml	agents	GPU data curation for training
+ml-training-recipes	rare	build	ml	agents	battle-tested PyTorch training recipes
+litgpt	rare	build	ml	agents	train LLMs with LitGPT
+nanogpt	rare	learn	ml	agents	minimal GPT to learn from
+mamba	rare	build	ml	agents	state-space models
+rwkv	rare	build	ml	agents	RNN-transformer hybrid
+huggingface-tokenizers	rare	build	ml	agents	fast tokenizers
+sentencepiece	rare	build	ml	agents	BPE / Unigram tokenizer
+lm-evaluation-harness	rare	qa	ml	agents	benchmark LLMs (MMLU, GSM8K…)
+bigcode-evaluation-harness	rare	qa	ml	agents	benchmark code models (HumanEval…)
+nemo-evaluator	rare	qa	ml	agents	benchmarks across 18+ harnesses
+transformer-lens	rare	build	research	agents	mechanistic interpretability
+saelens	rare	build	research	agents	sparse autoencoders for interpretability
+nnsight	rare	build	research	agents	inspect and edit model internals
+pyvene	rare	build	research	agents	causal interventions on models
+openpi	rare	build	research	agents	robot policy models (pi0)
+openvla-oft	rare	build	research	agents	robot action fine-tuning
+cosmos-policy	rare	qa	research	agents	evaluate NVIDIA Cosmos Policy
+a-evolve	rare	build	research	agents	evolve agents with LLM-driven search
+0-autoresearch-skill	rare	idea	research	agents	autonomous research loop
+brainstorming-research-ideas	rare	idea	research	agents	research ideation frameworks
+creative-thinking-for-research	rare	idea	research	agents	creative thinking for research
+compiler	rare	idea	research	agents	compile papers and repos into a research artifact
+research-manager	rare	handoff	research	agents	record research provenance after a task
+rigor-reviewer	rare	review	research	agents	epistemic review of research artifacts
+academic-plotting	rare	grow	research	agents	publication-quality figures
+ml-paper-writing	rare	grow	research	agents	ML conference papers
+systems-paper-writing	rare	grow	research	agents	systems conference papers
+presenting-conference-talks	rare	grow	research	agents	slides from a paper

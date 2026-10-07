@@ -1,0 +1,8 @@
+{
+  "id": "qdrant",
+  "repo": "Orchestra-Research/AI-Research-SKILLs",
+  "license": "MIT",
+  "copiedFrom": "~/.orchestra/skills/15-rag/qdrant",
+  "hash": "9053d9c046b5",
+  "vendoredAt": "2026-10-07"
+}

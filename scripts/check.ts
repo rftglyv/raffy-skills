@@ -110,6 +110,99 @@ if (existsSync(conceptsPath)) {
   }
 }
 
+// ── 7 · guide skill cards ───────────────────────────────────────────────────
+// The guide routes by these cards. A card with no phase is never offered, and a
+// collision-table entry with no card sends the agent looking for judgment that
+// does not exist.
+const guideCards = join(skillsDir, "guide", "knowledge", "skills.md");
+if (existsSync(guideCards)) {
+  const src = readFileSync(guideCards, "utf8");
+  const journey = readFileSync(join(skillsDir, "guide", "scripts", "journey.ts"), "utf8");
+  const phases = new Set([...(journey.match(/PHASES = \[([^\]]+)\]/)?.[1] ?? "").matchAll(/"([a-z]+)"/g)].map((m) => m[1]));
+  phases.add("orient"); phases.add("handoff");
+  const ids = new Set<string>();
+  for (const b of src.split(/^### /m).slice(1)) {
+    const id = b.slice(0, b.indexOf("\n")).trim();
+    ids.add(id);
+    const ph = b.match(/\*\*Phase:\*\*\s*([a-z]+)/)?.[1];
+    if (!ph) err(`guide/skills.md › ${id}: no **Phase:** — the guide can never offer it`);
+    else if (!phases.has(ph)) err(`guide/skills.md › ${id}: phase "${ph}" is not one journey.ts knows`);
+  }
+  // Commands and built-ins without their own card are named in the table on purpose.
+  const uncarded = new Set(["spec", "plan", "test", "build", "security-review", "simplify", "run"]);
+  const table = src.slice(src.indexOf("| Job |"), src.indexOf("\n---"));
+  for (const m of table.matchAll(/`([a-z0-9:-]+)`/g)) {
+    if (!ids.has(m[1]) && !uncarded.has(m[1])) err(`guide/skills.md: collision table names \`${m[1]}\` but there is no card for it`);
+  }
+}
+
+// ── 8 · the skill catalog ───────────────────────────────────────────────────
+// The guide asks the catalog for candidates instead of reading every skill. A
+// malformed row is silently unrankable, and a card with no catalog row is
+// judgment the guide can never reach.
+const catalogPath = join(skillsDir, "guide", "knowledge", "catalog.tsv");
+if (existsSync(catalogPath)) {
+  const journey = readFileSync(join(skillsDir, "guide", "scripts", "journey.ts"), "utf8");
+  const phases = new Set([...(journey.match(/PHASES = \[([^\]]+)\]/)?.[1] ?? "").matchAll(/"([a-z]+)"/g)].map((m) => m[1]));
+  phases.add("orient"); phases.add("handoff");
+  const seen = new Set<string>();
+  readFileSync(catalogPath, "utf8").split("\n").forEach((line, i) => {
+    if (!line.trim() || line.startsWith("#")) return;
+    const f = line.split("\t");
+    const at = `guide/catalog.tsv:${i + 1}`;
+    if (f.length !== 6) return err(`${at}: ${f.length} columns, expected 6 (id tier phase domain src when)`);
+    const [id, tier, phase, , src, when] = f;
+    if (seen.has(id)) err(`${at}: duplicate id ${id}`);
+    seen.add(id);
+    if (!["core", "often", "rare", "skip"].includes(tier)) err(`${at}: tier "${tier}"`);
+    if (!phases.has(phase)) err(`${at}: phase "${phase}" is not one journey.ts knows`);
+    if (!/^(raffy|builtin|user|command|agents|plugin:[\w-]+|project:[\w.-]+)$/.test(src)) err(`${at}: src "${src}"`);
+    if (when.length > 90) warn(`${at}: "when" is ${when.length} chars — keep catalog lines short, they are read into context`);
+  });
+  if (existsSync(guideCards)) {
+    for (const b of readFileSync(guideCards, "utf8").split(/^### /m).slice(1)) {
+      const id = b.slice(0, b.indexOf("\n")).trim();
+      if (!seen.has(id)) err(`guide/skills.md › ${id}: has a card but no catalog row — the guide cannot find it`);
+    }
+  }
+}
+
+// ── 9 · bundled library ─────────────────────────────────────────────────────
+// Redistributing someone's skill without its license is the one mistake here
+// that cannot be fixed by a follow-up commit. Every bundled dir needs
+// provenance, an allowed license, and the license text on disk.
+const lib = join(ROOT, "library");
+if (existsSync(join(lib, "INDEX.tsv"))) {
+  const cfg = JSON.parse(readFileSync(join(lib, "sources.json"), "utf8"));
+  const indexed = new Set<string>();
+  for (const line of readFileSync(join(lib, "INDEX.tsv"), "utf8").split("\n")) {
+    if (!line || line.startsWith("#")) continue;
+    const [id, dir, repo, license] = line.split("\t");
+    indexed.add(dir);
+    const where = `library/${dir}`;
+    if (!existsSync(join(lib, dir, "SKILL.md"))) { err(`${where}: in INDEX.tsv but has no SKILL.md`); continue; }
+    if (!existsSync(join(lib, dir, "SOURCE.json"))) err(`${where}: no SOURCE.json — provenance unknown`);
+    if (!cfg.allow.includes(license)) err(`${where}: license "${license}" is not in sources.json allow`);
+    if (cfg.repos[repo] !== license) err(`${where}: INDEX says ${license} but sources.json says ${repo} is ${cfg.repos[repo]}`);
+    if (!existsSync(join(lib, "licenses", repo.replace("/", "__") + ".txt"))) err(`${where}: no license text for ${repo} in library/licenses/`);
+    if (readFileSync(join(lib, dir, "SOURCE.json"), "utf8").includes("/Users/")) err(`${where}/SOURCE.json: contains an absolute home path`);
+  }
+  for (const d of readdirSync(lib)) {
+    if (statSync(join(lib, d)).isDirectory() && d !== "licenses" && !indexed.has(d)) err(`library/${d}: not in INDEX.tsv — run scripts/vendor.ts`);
+  }
+}
+
+// ── 10 · plugin hooks ───────────────────────────────────────────────────────
+const hooksJson = join(ROOT, "hooks", "hooks.json");
+if (existsSync(hooksJson)) {
+  let h: any;
+  try { h = JSON.parse(readFileSync(hooksJson, "utf8")); } catch { err("hooks/hooks.json: not valid JSON"); }
+  for (const groups of Object.values<any[]>(h?.hooks ?? {})) for (const g of groups) for (const c of g.hooks ?? []) {
+    for (const m of String(c.command).matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"' ]+)/g)) if (!existsSync(join(ROOT, m[1]))) err(`hooks/hooks.json: ${m[1]} does not exist`);
+    if (!c.timeout || c.timeout > 10) warn(`hooks/hooks.json: a hook without a short timeout can stall every prompt`);
+  }
+}
+
 // ── report ──────────────────────────────────────────────────────────────────
 console.log(`checked ${skills.length} skills · ${docs.length} docs · ${cards} cards · ${taught.size} concepts\n`);
 for (const w of warnings) console.log(`  warn  ${w}`);

@@ -1,0 +1,8 @@
+{
+  "id": "sentence-transformers",
+  "repo": "Orchestra-Research/AI-Research-SKILLs",
+  "license": "MIT",
+  "copiedFrom": "~/.orchestra/skills/15-rag/sentence-transformers",
+  "hash": "d770c238e942",
+  "vendoredAt": "2026-10-07"
+}
