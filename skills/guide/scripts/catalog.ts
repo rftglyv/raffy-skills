@@ -64,6 +64,7 @@ export function availability(rows: Row[], project: string) {
   const here = basename(resolve(project));
   const status = (r: Row): string => {
     if (r.src === "builtin" || r.src === "raffy") return "active";  // the catalog runs from inside raffy
+    if (r.src === "tool") return Bun.which(r.id) ? "active" : "missing";
     if (active.has(r.id)) return "active";
     // A user skill linked from ~/.agents shows up under its bare name.
     if (!r.id.includes(":") && active.has(bare(r.id))) return "active";
@@ -77,7 +78,7 @@ export function availability(rows: Row[], project: string) {
     st === "bundled" ? `read library/${bundled.get(r.id)}/SKILL.md`
     : st === "dormant" ? "enable to use"
     : st === "project" ? `in ${r.src.slice(8)}`
-    : st === "missing" ? "not installed" : "";
+    : st === "missing" ? (r.src === "tool" ? "/raffy:setup installs it" : "not installed") : "";
   const known = new Set(rows.flatMap((r) => [r.id, bare(r.id)]));
   const unknown = inv.skills.filter((s) => !known.has(s.id) && !known.has(s.name));
   return { status, hint, unknown };

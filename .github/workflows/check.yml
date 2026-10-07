@@ -45,6 +45,16 @@ jobs:
           test -z "$quiet"
           printf 'not json' | bun hooks/prompt.ts
 
+      # Memory round-trip, and the session brief that reads it back.
+      - name: memory and session brief
+        env: { RAFFY_HOME: /tmp/raffy-mem }
+        run: |
+          mkdir -p /tmp/proj
+          bun skills/guide/scripts/memory.ts remember /tmp/proj --kind decision --text "auth is magic-link only" --why "no password resets" --tags login,auth
+          bun skills/guide/scripts/memory.ts recall /tmp/proj login | grep -q magic-link
+          printf '{"cwd":"/tmp/proj"}' | bun hooks/session.ts | grep -q "magic-link"
+          test -z "$(printf '{"cwd":"/tmp"}' | bun hooks/session.ts)"
+
       # The knowledge base must index without loss.
       - name: knowledge base builds
         env: { RAFFY_KB_DIR: /tmp/kb }

@@ -156,7 +156,7 @@ if (existsSync(catalogPath)) {
     seen.add(id);
     if (!["core", "often", "rare", "skip"].includes(tier)) err(`${at}: tier "${tier}"`);
     if (!phases.has(phase)) err(`${at}: phase "${phase}" is not one journey.ts knows`);
-    if (!/^(raffy|builtin|user|command|agents|plugin:[\w-]+|project:[\w.-]+)$/.test(src)) err(`${at}: src "${src}"`);
+    if (!/^(raffy|builtin|tool|user|command|agents|plugin:[\w-]+|project:[\w.-]+)$/.test(src)) err(`${at}: src "${src}"`);
     if (when.length > 90) warn(`${at}: "when" is ${when.length} chars — keep catalog lines short, they are read into context`);
   });
   if (existsSync(guideCards)) {
