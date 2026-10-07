@@ -226,7 +226,9 @@ belong in the repo from commit one. Read `references/dx-tooling.md` and set up:
 The point is not the repo. The point is that after a few projects the user can supervise the
 agent instead of trusting it.
 
-Write `.raffy/progress.md` in the project and append to `~/.claude/raffy/progress.md`:
+Write `.raffy/progress.md` in the project — this file only. Never append to
+`~/.claude/raffy/progress.md`: that is drill's ledger, a table `ledger.ts` parses, and free text
+breaks it.
 
 ```markdown
 ## <project> — <date>
@@ -236,6 +238,16 @@ Decisions deferred to the agent: <list>
 Concepts introduced: row-level-authorization, migrations, request-boundary
 Triggers to watch: add pg-boss when email sending lands
 ```
+
+Then record it through raffy's scripts, so the next session and the dashboard see it — one call
+each, as written:
+
+```bash
+bun "${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts/journey.ts" log . --skill raffy:scaffold --phase stack --status done --note "<stack, one line>"
+bun "${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts/memory.ts" remember --kind decision --text "<a decision the user made>" --why "<their reason>" --tags <search words>
+```
+
+One `remember` per decision the user made themselves — the ones they will want the reason for later.
 
 Then, in chat, give them **three things to watch for** in this specific codebase — the places
 where an agent will plausibly do the wrong thing. Concrete, with file paths. That list is what
