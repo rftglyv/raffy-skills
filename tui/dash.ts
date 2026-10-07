@@ -18,7 +18,7 @@
  */
 import { existsSync, readFileSync, readdirSync, statSync, openSync, readSync, closeSync } from "node:fs";
 import { join, basename } from "node:path";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 
 const RAFFY_HOME = process.env.RAFFY_HOME ?? join(homedir(), ".claude", "raffy");
 const CLAUDE_PROJECTS = join(process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), ".claude"), "projects");
@@ -93,7 +93,8 @@ export function collect(): Project[] {
   }
   for (const s of all) {
     // Scratch and temp folders are noise on a dashboard of real work.
-    if (/^\/(private\/)?tmp\//.test(s.cwd) || s.cwd.includes("/scratchpad/")) continue;
+    // (macOS mktemp lives under /var/folders, not /tmp.)
+    if (/^\/(private\/)?(tmp|var\/folders)\//.test(s.cwd) || s.cwd.startsWith(tmpdir()) || s.cwd.includes("/scratchpad/")) continue;
     const p = ensure(s.cwd);
     p.sessions.push(s);
   }

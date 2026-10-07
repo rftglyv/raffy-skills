@@ -86,6 +86,18 @@ bun tui/dash.ts --json     # the same data, for a web or native app
 bun tui/web.ts             # the same view in a browser: http://localhost:4747 (127.0.0.1 only)
 ```
 
+There is also a desktop app for macOS, Windows and Linux (Tauri 2): the same page as the browser
+view (`tui/web/index.html`), plus a tray icon and actions — open a terminal or Claude in a project,
+enable or unlink a skill. In Claude Code, open it with:
+
+```
+/raffy:app            # desktop app; builds it on first use (needs Rust), rebuilds when raffy changes
+/raffy:app --web      # the browser view instead
+```
+
+Outside Claude Code: `bun tui/app.ts`. Installers: `cd native/raffy-desktop && bunx @tauri-apps/cli@2 build`
+(output in `src-tauri/target/release/bundle/`).
+
 Every project raffy has touched and every Claude Code session on the machine, on one screen: phase,
 last step, decisions and why, recent sessions. Read-only; no server.
 
@@ -121,7 +133,9 @@ On macOS with Docker Desktop, cases that grant Bash refuse to run locally: Docke
 `library/` holds copies of other people's skills so the guide can use them with nothing installed.
 Each has a `SOURCE.json` with its origin and license, and every license text is in
 `library/licenses/`. `scripts/vendor.ts` refreshes them and refuses any source without a permissive
-license — so `anthropics/skills`, `vercel-labs/agent-skills`, `vercel-labs/next-skills` and the
+license. `bun scripts/vendor.ts check` reports bundled skills that drifted from their installed source
+or were edited by hand; `--upstream` also asks GitHub whether the source repo moved (CI runs that
+monthly). So `anthropics/skills`, `vercel-labs/agent-skills`, `vercel-labs/next-skills` and the
 figma plugin are cataloged but not bundled.
 
 From: `mattpocock/skills` · `addyosmani/agent-skills` · `pbakaus/impeccable` · `shadcn/ui` ·
@@ -167,7 +181,8 @@ skills/
 scripts/agents.ts        copies the skills for Codex, Cursor and Gemini CLI
 library/                 52 bundled skills · sources.json · licenses/ · INDEX.tsv
 hooks/                   hooks.json · guard.ts (PreToolUse) · proof.ts (Stop) · prompt.ts (UserPromptSubmit) · session.ts (SessionStart)
-tui/                     dash.ts (terminal) · web.ts (browser, localhost only) — across projects and sessions
+native/raffy-desktop/    Tauri 2 desktop app: the web dashboard page in a native window
+tui/                     dash.ts (terminal) · web.ts (browser, localhost only) · web/index.html (shared page) — across projects and sessions
 .raffy/                  raffy's own journey and decisions, kept in the repo
 packages/raffy-kb/       npm package: CLI + statusline
 ```

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>raffy</title>
+<style>
+:root { --bg:#f4f6f9; --surface:#fff; --ink:#151c29; --muted:#5d6779; --rule:#dfe4ec; --line:#2357e8; --ok:#1d8a4a; --warn:#b26a00;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace; --sans: -apple-system, "Segoe UI", system-ui, sans-serif; color-scheme: light }
+@media (prefers-color-scheme: dark) { :root { --bg:#0e131c; --surface:#161d29; --ink:#e8edf5; --muted:#98a3b5; --rule:#273142; --line:#6b93ff; --ok:#4cc27c; --warn:#f0a83c; color-scheme: dark } }
+* { box-sizing: border-box } body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 var(--sans); padding:24px 16px 48px }
+header, main { max-width:1180px; margin:0 auto }
+header { margin-bottom:14px; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap }
+h1 { margin:0; font-size:22px; letter-spacing:-.01em } .sub { color:var(--muted); font-size:13px }
+nav { max-width:1180px; margin:0 auto 16px; display:flex; gap:4px; flex-wrap:wrap }
+nav button { all:unset; cursor:pointer; padding:6px 12px; border-radius:8px; color:var(--muted); font-weight:500 }
+nav button[aria-selected="true"] { background:var(--surface); color:var(--ink); box-shadow:0 0 0 1px var(--rule) }
+nav button:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid var(--line); outline-offset:2px }
+.wrap { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1.3fr); gap:16px }
+@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0,1fr) } }
+.panel { background:var(--surface); border:1px solid var(--rule); border-radius:12px; min-width:0 }
+.list button { all:unset; box-sizing:border-box; display:grid; grid-template-columns: minmax(0,1fr) auto; gap:2px 10px; width:100%;
+  padding:11px 14px; border-bottom:1px solid var(--rule); cursor:pointer }
+.list button:last-child { border-bottom:0 } .list button:hover { background:var(--bg) }
+.list button[aria-selected="true"] { box-shadow: inset 3px 0 0 var(--line); background:var(--bg) }
+.name { font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap } .ago { font:12px var(--mono); color:var(--muted) }
+.meta { grid-column: 1 / -1; color:var(--muted); font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.pill { font:11px var(--mono); padding:1px 6px; border-radius:4px; background:var(--bg); color:var(--line); margin-right:6px }
+.detail { padding:18px; display:grid; gap:18px; align-content:start }
+.path { display:flex; flex-wrap:wrap; gap:4px } .path span { font:11.5px var(--mono); padding:3px 7px; border-radius:5px; color:var(--muted); background:var(--bg) }
+.path .done { color:var(--ok) } .path .now { background:var(--line); color:#fff }
+h2 { margin:0 0 6px; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted) }
+ul { margin:0; padding:0; list-style:none; display:grid; gap:6px } li { font-size:13.5px; min-width:0; overflow-wrap:anywhere }
+.why, .date { color:var(--muted) } .date { font:12px var(--mono); margin-right:8px }
+.ok { color:var(--ok) } .warn { color:var(--warn) } .empty { color:var(--muted); padding:18px }
+.actions { display:flex; gap:8px; flex-wrap:wrap }
+.act { font:inherit; font-size:12.5px; padding:4px 10px; border-radius:7px; border:1px solid var(--rule); background:var(--surface); color:var(--ink); cursor:pointer }
+.act:hover { border-color:var(--line) }
+.table { overflow-x:auto } table { width:100%; border-collapse:collapse; font-size:13px }
+th { text-align:left; font-weight:500; color:var(--muted); font-size:12px; padding:9px 12px; border-bottom:1px solid var(--rule); white-space:nowrap }
+td { padding:8px 12px; border-bottom:1px solid var(--rule); vertical-align:top } tr:last-child td { border-bottom:0 }
+td.num { text-align:right; font-family:var(--mono); white-space:nowrap } td.clip { max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--ok) }
+.bars { display:grid; gap:4px; padding:14px } .bar { display:grid; grid-template-columns: 84px minmax(0,1fr) 64px; gap:10px; align-items:center; font-size:12px }
+.bar i { display:block; height:10px; border-radius:3px; background:var(--line); min-width:2px } .bar span { font-family:var(--mono); color:var(--muted) }
+.tools { display:flex; gap:10px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--rule); flex-wrap:wrap }
+.tools input { font:inherit; padding:5px 10px; border:1px solid var(--rule); border-radius:7px; background:var(--bg); color:var(--ink); min-width:220px }
+.big { font-size:28px; font-weight:600; letter-spacing:-.02em }
+#toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:8px 14px; border-radius:8px; font-size:13px; display:none }
+</style></head><body>
+<header><h1>raffy</h1><span class="sub" id="sum">loading…</span></header>
+<nav role="tablist" id="tabs"></nav>
+<main id="view"></main>
+<div id="toast" role="status"></div>
+<script>
+// Two hosts serve this page: tui/web.ts (HTTP, read-only) and the desktop app (Tauri).
+// Both run the same raffy scripts, so every view shows the same numbers.
+const TAURI = window.__TAURI__;
+const query = (name) => TAURI ? TAURI.core.invoke("raffy", { query: name })
+  : fetch("/api/" + name).then((r) => r.ok ? r.json() : r.json().then((e) => Promise.reject(new Error(e.error || r.statusText))));
+const act = (action, arg) => TAURI.core.invoke("act", { action, arg });
+
+const PATH = ["idea","shape","stack","plan","build","ui","debug","review","secure","qa","ship","grow","learn"];
+const TABS = { projects: "Projects", sessions: "Sessions", skills: "Skills", drill: "Drill", budget: "Startup cost" };
+let tab = "projects", sel = 0, filter = "", cache = {};
+
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const ago = (t) => { const d = Date.now() - t; return d < 36e5 ? Math.max(1, Math.round(d / 6e4)) + "m" : d < 864e5 ? Math.round(d / 36e5) + "h" : Math.round(d / 864e5) + "d"; };
+const fmt = (n) => n >= 1e9 ? (n / 1e9).toFixed(1) + "B" : n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? Math.round(n / 1e3) + "k" : String(n);
+const sumTok = (t) => t.input + t.output + t.cacheRead + t.cacheWrite;
+const toast = (msg) => { const t = document.getElementById("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = "none", 3500); };
+const button = (label, onclick) => { const b = el("button", "act", label); b.onclick = onclick; return b; };
+
+// Every change asks first; the desktop side validates the argument again.
+async function run(action, arg, question) {
+  if (!confirm(question)) return;
+  try { toast(await act(action, arg)); delete cache.skills; delete cache.budget; load(); } catch (e) { toast(String(e)); }
+}
+
+function table(head, rows) {
+  const wrap = el("div", "table"), t = el("table"), tr = el("tr");
+  head.forEach((h) => tr.append(el("th", null, h))); t.append(tr);
+  rows.forEach((cells) => { const r = el("tr"); cells.forEach((c) => r.append(c instanceof Node ? c : el("td", null, c))); t.append(r); });
+  wrap.append(t); return wrap;
+}
+const td = (x, c) => { const d = el("td", c); x instanceof Node ? d.append(x) : d.textContent = x; return d; };
+
+const views = {
+  projects(data) {
+    document.getElementById("sum").textContent = data.length + " projects · " + data.reduce((n, p) => n + p.sessions.length, 0) + " sessions";
+    const wrap = el("div", "wrap"), list = el("div", "panel list"), d = el("div", "panel detail");
+    list.setAttribute("role", "listbox"); list.setAttribute("aria-label", "Projects");
+    if (!data.length) list.append(el("div", "empty", "No projects yet. Run /raffy:guide in a repo to start a trail."));
+    sel = Math.min(sel, Math.max(0, data.length - 1));
+    data.forEach((p, i) => {
+      const b = el("button"); b.setAttribute("role", "option"); b.setAttribute("aria-selected", String(i === sel));
+      b.append(el("span", "name", p.name), el("span", "ago", ago(p.lastActive)));
+      const last = p.steps.at(-1), meta = el("span", "meta");
+      if (p.phase) meta.append(el("span", "pill", p.phase));
+      meta.append(document.createTextNode(last ? last.skill + " " + last.status : (p.sessions[0]?.title ?? "")));
+      b.append(meta); b.onclick = () => { sel = i; render(); }; list.append(b);
+    });
+    wrap.append(list, d);
+    const p = data[sel]; if (!p) return wrap;
+    const head = el("div"); head.append(el("div", "name", p.name), el("div", "why", p.path)); d.append(head);
+    if (TAURI) {
+      const a = el("div", "actions");
+      a.append(button("Open terminal", () => act("terminal", p.path).then(toast, (e) => toast(String(e)))),
+        button("Start Claude here", () => act("claude", p.path).then(toast, (e) => toast(String(e)))),
+        button("Show folder", () => act("reveal", p.path).then(toast, (e) => toast(String(e)))));
+      d.append(a);
+    }
+    if (p.phase) {
+      const done = new Set(p.steps.filter((s) => s.status === "done").map((s) => s.phase)), row = el("div", "path");
+      PATH.forEach((s) => row.append(el("span", s === p.phase ? "now" : done.has(s) ? "done" : "", s + (done.has(s) && s !== p.phase ? " ✓" : ""))));
+      d.append(row);
+    }
+    const section = (title, items, fill) => { if (!items.length) return; const s = el("section"); s.append(el("h2", null, title)); const ul = el("ul"); items.forEach((x) => { const li = el("li"); fill(li, x); ul.append(li); }); s.append(ul); d.append(s); };
+    section("Steps", p.steps.slice(-8).reverse(), (li, s) => { li.append(el("span", "date", s.at.slice(0, 10)), document.createTextNode(s.skill + " "), el("span", s.status === "done" ? "ok" : "warn", s.status)); if (s.note) li.append(el("span", "why", " — " + s.note)); });
+    section("Decided", p.decisions.slice(-6).reverse(), (li, x) => { li.append(document.createTextNode(x.text)); if (x.why) li.append(el("span", "why", " — " + x.why)); });
+    section("Sessions (" + p.sessions.length + ")", p.sessions.slice(0, 8), (li, s) => { li.append(el("span", "date", ago(s.at)), document.createTextNode(s.title)); });
+    return wrap;
+  },
+
+  sessions({ sessions, days, window = 14 }) {
+    const active = sessions.filter((s) => s.active).length, total = days.reduce((n, d) => n + sumTok(d.tokens), 0);
+    document.getElementById("sum").textContent = sessions.length + " sessions in " + window + " days · " + active + " running now · " + fmt(total) + " tokens";
+    const box = el("div"); box.style.display = "grid"; box.style.gap = "16px";
+    const chart = el("div", "panel bars"), max = Math.max(1, ...days.map((d) => sumTok(d.tokens)));
+    chart.append(el("h2", null, "Tokens per day (input + output + cache)"));
+    days.forEach((d) => { const r = el("div", "bar"), i = el("i"); i.style.width = (100 * sumTok(d.tokens) / max) + "%"; const w = el("div"); w.append(i); r.append(el("span", null, d.day.slice(5)), w, el("span", null, fmt(sumTok(d.tokens)))); chart.append(r); });
+    if (!days.length) chart.append(el("div", "empty", "No sessions in the last 14 days."));
+    const panel = el("div", "panel");
+    panel.append(table(["", "Session", "Folder", "Model", "Turns", "Output", "Total", "Last"], sessions.slice(0, 60).map((s) => [
+      td(s.active ? el("span", "dot") : ""), td(s.title, "clip"), td(s.cwd.split(/[\\/]/).pop()), td((s.model || "").replace(/^claude-/, "")),
+      td(String(s.turns), "num"), td(fmt(s.tokens.output), "num"), td(fmt(sumTok(s.tokens)), "num"), td(ago(s.lastAt), "num")])));
+    box.append(chart, panel); return box;
+  },
+
+  skills(rows) {
+    const count = (st) => rows.filter((r) => r.status === st).length;
+    document.getElementById("sum").textContent = rows.length + " skills · " + count("active") + " active · " + count("bundled") + " bundled · " + count("dormant") + " dormant";
+    const panel = el("div", "panel"), tools = el("div", "tools"), input = el("input");
+    input.type = "search"; input.placeholder = "filter: id, phase or what it's for"; input.value = filter; input.setAttribute("aria-label", "Filter skills");
+    input.oninput = () => { filter = input.value; draw(); };
+    tools.append(input, el("span", "why", TAURI ? "Enable links a dormant skill into Claude; Unlink removes a linked one." : "Read-only here — use the desktop app to enable or unlink skills."));
+    const body = el("div"); panel.append(tools, body);
+    function draw() {
+      const f = filter.toLowerCase(), shown = rows.filter((r) => !f || (r.id + " " + r.phase + " " + r.when).toLowerCase().includes(f)).slice(0, 150);
+      body.replaceChildren(table(["Skill", "Phase", "Status", "When to use", ""], shown.map((r) => {
+        const cell = el("td");
+        if (TAURI && r.status === "dormant") cell.append(button("Enable", () => run("enable", r.id, "Link " + r.id + " into Claude Code? It loads in new sessions.")));
+        if (TAURI && r.status === "active" && r.src === "agents") cell.append(button("Unlink", () => run("unlink", r.id, "Unlink " + r.id + "? It stays findable as dormant.")));
+        return [td(r.id), td(r.phase), td(el("span", r.status === "active" ? "ok" : r.status === "dormant" ? "warn" : "why", r.status)), td(r.when, "clip"), cell];
+      })));
+    }
+    draw(); setTimeout(() => input.focus(), 0); return panel;
+  },
+
+  drill(rows) {
+    const due = rows.filter((r) => r.isDue).length;
+    document.getElementById("sum").textContent = rows.length + " concepts · " + due + " due for review";
+    const panel = el("div", "panel");
+    if (!rows.length) { panel.append(el("div", "empty", "No drill history yet. Run /raffy:drill in a project to start earning concepts.")); return panel; }
+    panel.append(table(["Concept", "Level", "Hits", "Misses", "Last project", "Due"], rows.map((r) => [
+      td(r.concept), td(r.level), td(String(r.hits), "num"), td(String(r.misses), "num"), td(r.project), td(el("span", r.isDue ? "warn" : "why", r.isDue ? "now" : r.due))])));
+    return panel;
+  },
+
+  budget(b) {
+    document.getElementById("sum").textContent = "what loads into every session before your first prompt";
+    const panel = el("div", "panel detail"), head = el("div");
+    head.append(el("div", "big", "~" + fmt(b.total) + " tokens"), el("div", "why", "estimated, for sessions started in " + b.project));
+    panel.append(head);
+    const max = Math.max(1, ...b.sources.map((s) => s.tokens)), bars = el("div", "bars"); bars.style.padding = "0";
+    const unmeasured = b.sources.filter((s) => s.kind === "hook" && !s.tokens);
+    b.sources.filter((s) => !unmeasured.includes(s)).forEach((s) => { const r = el("div", "bar"), i = el("i"), w = el("div"); i.style.width = (100 * s.tokens / max) + "%"; w.append(i); r.style.gridTemplateColumns = "minmax(0,1.2fr) minmax(0,1fr) 64px"; const n = el("span", null, s.name); n.style.overflow = "hidden"; n.style.textOverflow = "ellipsis"; n.style.whiteSpace = "nowrap"; r.append(n, w, el("span", null, fmt(s.tokens))); bars.append(r); });
+    panel.append(bars);
+    if (unmeasured.length) panel.append(el("div", "why", unmeasured.length + " hooks also add text (" + unmeasured.map((h) => h.name).join(", ") + ") — not measured here, since measuring means running them."));
+    panel.append(el("div", "why", "To cut it: /raffy:doctor."));
+    return panel;
+  },
+};
+
+function render() {
+  const tabs = document.getElementById("tabs"); tabs.replaceChildren();
+  Object.entries(TABS).forEach(([k, label]) => { const b = el("button", null, label); b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(k === tab)); b.onclick = () => { tab = k; render(); if (LIVE.has(k) || !cache[k] || cache[k] instanceof Error) load(); }; tabs.append(b); });
+  const view = document.getElementById("view"); view.replaceChildren();
+  if (cache[tab] instanceof Error) view.append(el("div", "panel empty", TAURI ? "Could not read this — is bun installed and raffy set up? (" + cache[tab].message + ")" : "Server stopped or failed — rerun bun tui/web.ts (" + cache[tab].message + ")"));
+  else if (cache[tab]) view.append(views[tab](cache[tab]));
+  else view.append(el("div", "panel empty", "loading…"));
+}
+async function load() {
+  const name = tab;
+  try { cache[name] = await query(name); } catch (e) { cache[name] = e instanceof Error ? e : new Error(String(e)); }
+  if (name === tab) render();
+}
+// Skills and startup cost change only when you change your setup; refreshing them
+// every 15 s would also wipe what you typed into the filter.
+const LIVE = new Set(["projects", "sessions", "drill"]);
+document.addEventListener("keydown", (e) => {
+  if (tab !== "projects" || !Array.isArray(cache.projects)) return;
+  if (e.key === "ArrowDown") { sel = Math.min(cache.projects.length - 1, sel + 1); render(); }
+  if (e.key === "ArrowUp") { sel = Math.max(0, sel - 1); render(); }
+});
+if (TAURI?.event) TAURI.event.listen("raffy://refresh", () => load());
+render(); load(); setInterval(() => LIVE.has(tab) && load(), 15000);
+</script></body></html>

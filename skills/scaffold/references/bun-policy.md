@@ -73,6 +73,13 @@ the better story with the Vite module graph and `jsdom`/`happy-dom` integration.
 **Fix:** `bun test` for server, unit and integration; Vitest for component tests; Playwright for
 end-to-end. Running both is normal and cheap.
 
+### 6. `bun run <script> -- <args>` drops the `--`
+
+`bun run x -- --flag a` passes `["--flag", "a"]` — the separator is gone (checked on bun 1.3.12). A
+wrapper script that waits for `--` before the command it should run never sees it and hangs.
+
+**Fix:** give wrappers an explicit flag (`db-server.ts --run next dev`), never a bare `--`.
+
 ## How to present a deviation
 
 Never silently drop to Node. Say it in one line at proposal time:

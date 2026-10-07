@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The dashboard window: core APIs only. The app's own commands: `raffy` (reads, fixed allowlist) and `act` (enable/unlink a skill, open a terminal or folder — arguments validated in main.rs).",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

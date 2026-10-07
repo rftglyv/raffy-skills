@@ -1,0 +1,19 @@
+name: library freshness
+
+# Once a month: which bundled skills' source repos have moved since they were
+# bundled. Report only — refreshing is a human decision (vendor.ts, then review
+# the diff), because an upstream change can also be a regression.
+
+on:
+  schedule: [{ cron: "0 9 1 * *" }]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: upstream check
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: bun scripts/vendor.ts check --upstream | tee -a "$GITHUB_STEP_SUMMARY"

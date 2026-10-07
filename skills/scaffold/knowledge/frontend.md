@@ -16,7 +16,12 @@ static content site (Astro ships less JS) · the team does not know React.
 **Pairs with:** Drizzle, Better Auth, Tailwind, shadcn · **Conflicts with:** Prisma under `--bun`
 **Adopt:** hours · **Remove later:** a week+ — the framework shapes the whole codebase
 **Gotcha:** the caching model is the most common source of "why is my data stale". Learn it before
-shipping, not after.
+shipping, not after. Since Next 16, `create-next-app` turns on `cacheComponents` (and
+`partialPrefetching`): reading the session in a layout or page outside `<Suspense>` then fails
+`next build` with "uncached or runtime data during prerendering". For an app where every page is
+per-user, set `cacheComponents: false` and say so; otherwise follow the bundled guide
+`node_modules/next/dist/docs/01-app/02-guides/authentication-with-cache-components.md`. Decide
+before writing the first page, not after the first build.
 
 ### Vite + React (SPA)
 **Bun:** full · **Docs:** https://vite.dev · **Teaches:** spa-architecture, client-routing, bundling

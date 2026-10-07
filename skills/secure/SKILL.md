@@ -49,6 +49,10 @@ bun "${CLAUDE_PLUGIN_ROOT}/skills/secure/scripts/scan.ts" <repo-path>
 Emits candidate hits with `file:line` for every pattern in the catalog. It is deliberately noisy —
 recall over precision, because a missed secret costs more than a false positive.
 
+Folders carrying a `SOURCE.json` (vendored third-party code with its upstream repo) are skipped and
+counted in one line. Say the count in the report. Scan them with `--vendored` when the question is
+supply chain rather than this app's own code.
+
 If bun is unavailable, run the equivalent greps from `references/checks.md` by hand.
 
 ## Phase 2 — The eight checks

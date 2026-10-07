@@ -23,7 +23,9 @@ fighting a library.
 trade.
 **Pairs with:** Tailwind, Radix, the registries in `ui-registries.md` · **Adopt:** minutes
 **Gotcha:** wire the MCP server and the official skill during scaffolding. It changes UI work from
-generation to assembly.
+generation to assembly. CLI v4: `bunx --bun shadcn@latest init --defaults --yes button card input`
+— `--base-color` is gone (check `init --help`), and `cn` now comes from the `cn` package
+(repo `shadcn-ui/cn`), not `clsx` + `tailwind-merge`. Expect that dependency; it is not a typosquat.
 
 ### Radix UI · Base UI · React Aria
 **Docs:** https://radix-ui.com · https://base-ui.com · https://react-spectrum.adobe.com/react-aria

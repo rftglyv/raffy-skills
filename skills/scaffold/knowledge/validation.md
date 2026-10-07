@@ -15,7 +15,9 @@ drift between the type and the check.
 LLM structured output.
 **Don't use when** — you are on Elysia (TypeBox is native) or bundle size is critical (Valibot).
 **Pairs with:** React Hook Form, Hono, Drizzle, the AI SDK · **Adopt:** minutes
-**Gotcha:** validate `process.env` with a Zod schema at startup. A missing env var should crash on
+**Gotcha:** validate `process.env` with a Zod schema at startup — and treat an empty value (`KEY=` in `.env.example` copies) as unset, not as a present-but-invalid string, or every fresh checkout fails boot on keys it does not need yet. Gate production-only keys on the
+deploy environment (`VERCEL_ENV === "production"`), not `NODE_ENV` — `next build` sets
+`NODE_ENV=production` on every laptop and CI run. A missing env var should crash on
 boot, not at 3am in a code path nobody ran.
 
 ### TypeBox

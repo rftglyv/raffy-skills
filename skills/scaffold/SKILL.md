@@ -198,6 +198,25 @@ worse than none.
 7. **DX tooling.** Phase 5.
 8. **First commit.** Then `git init` + first commit, with the `.gitignore` already correct.
 
+### Build budget
+
+A live run of this phase took 395 turns and ~533k output tokens; most of it was avoidable churn.
+Hold to these:
+
+- **Third rewrite of one file = stop.** Two edits is a typo; three is a wrong choice (a dev
+  database that cannot run under the dev server, a wrapper the runtime cannot drive). Say what is
+  wrong, pick the other option from the card, and continue. Log a `progress` checkpoint when you do.
+- **Generators over hand-writing.** `create-next-app`, `shadcn init`, `drizzle-kit generate`,
+  `better-auth` CLIs write files you would otherwise spend output tokens on.
+- **Helpers as bun scripts**, not `chmod`, `curl`, `sleep` loops or ad-hoc shell — those each need
+  approval and stall the run. One smoke script in the project that boots, checks and exits beats restarting
+  the dev server by hand. Boot it on its own port (`3100`), not `3000` — the user's machine often
+  has something there already.
+- **Verify by build, not by browsing.** `typecheck` + `test` + `next build` once per step; the dev
+  server once, at the end.
+- **Fetch the docs for each library before its first file** (`Docs:` on its card). Version-specific
+  APIs are where the rewrites come from.
+
 Never write secrets into any file that ships to a browser. If a key must reach the client, it is
 a publishable key by design — check, do not assume.
 

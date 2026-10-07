@@ -23,6 +23,11 @@ Self-hosted TypeScript auth that owns its tables in your database, with plugins 
 need organizations or teams without paying per seat.
 **Don't use when** — you need SAML and enterprise SSO on day one (see WorkOS).
 **Pairs with:** Drizzle, Prisma, Postgres, Next.js, Hono · **Adopt:** ~2h · **Remove later:** days
+**Gotcha:** the schema generator (`bunx auth@latest generate --config <file> --output <file> --yes`)
+imports your config, and cannot load one that imports `server-only` or a validated env module. Keep
+a small CLI-only config (same `user` fields and `plugins`, dummy database) beside the real one. The
+Drizzle adapter imports from `better-auth/adapters/drizzle`; `additionalFields: { role: { input:
+false } }` keeps users from setting their own role.
 
 ### Auth.js (NextAuth)
 **Bun:** partial · **Docs:** https://authjs.dev · **Teaches:** oauth, sessions, adapters

@@ -21,6 +21,8 @@ jobs:
       - name: scanners execute
         run: |
           bun skills/secure/scripts/scan.ts . > /dev/null
+          bun skills/secure/scripts/scan.ts . | grep -q "skipped .* vendored folders"
+          bun skills/secure/scripts/scan.ts . --vendored --json | node -e "JSON.parse(require('fs').readFileSync(0)).vendored.length === 0 || process.exit(1)"
           bun skills/ship/scripts/readiness.ts . > /dev/null
 
       # The guide's scripts must run on a machine with no skills installed and
@@ -87,9 +89,14 @@ jobs:
         run: |
           bun tui/dash.ts --once | grep -q "0 projects"
           bun tui/dash.ts --json | node -e "JSON.parse(require('fs').readFileSync(0))"
+          bun tui/sessions.ts --json | node -e "JSON.parse(require('fs').readFileSync(0)).sessions.length === 0 || process.exit(1)"
+          bun skills/guide/scripts/catalog.ts list --json | node -e "JSON.parse(require('fs').readFileSync(0)).length > 0 || process.exit(1)"
+          bun skills/drill/scripts/ledger.ts json | node -e "JSON.parse(require('fs').readFileSync(0))"
+          bun skills/doctor/scripts/doctor.ts budget . --json | node -e "JSON.parse(require('fs').readFileSync(0))"
           bun tui/web.ts --port 4790 & sleep 2
           curl -sf localhost:4790/api/projects | node -e "JSON.parse(require('fs').readFileSync(0))"
           curl -sf localhost:4790/ | grep -q "<title>raffy</title>"
+          test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: rebound.example:4790' localhost:4790/api/sessions)" = "403"
 
       # Memory round-trip, and the session brief that reads it back.
       - name: memory and session brief
@@ -112,6 +119,10 @@ jobs:
           bun skills/scaffold/scripts/kb.ts build
           bun skills/scaffold/scripts/kb.ts search "does prisma work under bun" -n 1 | grep -q Prisma
 
+      # A bundled skill must match the hash it was bundled with: no silent hand edits.
+      - name: bundled library unchanged
+        run: bun scripts/vendor.ts check | tee /tmp/lib.txt && ! grep -q "edited by hand" /tmp/lib.txt
+
       - name: manifests valid
         run: |
           bunx --bun json -h > /dev/null 2>&1 || true
@@ -121,3 +132,38 @@ jobs:
       # parse_findings.py is the contract between qa-audit and any tracker.
       - name: findings parser imports
         run: python3 -c "import ast,sys; ast.parse(open('skills/qa-audit/scripts/parse_findings.py').read())"
+
+  # The desktop app must build, find bun and read the dashboard on all three
+  # desktop platforms. --dump exits before any window opens, so it runs headless.
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix: { os: [macos-latest, ubuntu-22.04, windows-latest] }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: native/raffy-desktop/src-tauri }
+      - name: linux webview deps
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: build
+        working-directory: native/raffy-desktop/src-tauri
+        run: cargo build --release
+      # Quoting and allowlists: the only things between the page and a shell.
+      - name: unit tests
+        working-directory: native/raffy-desktop/src-tauri
+        run: cargo test --release
+      - name: reads the dashboard
+        shell: bash
+        env: { RAFFY_ROOT: "${{ github.workspace }}", RAFFY_HOME: "${{ runner.temp }}/raffy", CLAUDE_CONFIG_DIR: "${{ runner.temp }}/claude" }
+        # Capture first: `| grep -q` closes the pipe at the first match and the app's
+        # later lines would die on a broken pipe.
+        run: |
+          out=$(native/raffy-desktop/src-tauri/target/release/raffy-desktop --dump)
+          echo "$out"
+          for want in "0 projects" "sessions: ok" "skills: ok" "drill: ok" "budget: ok"; do
+            grep -q "$want" <<< "$out" || { echo "missing: $want"; exit 1; }
+          done

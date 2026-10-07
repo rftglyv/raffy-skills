@@ -10,6 +10,7 @@
  *   bun ledger.ts record <concept> <hit|miss> [--project X]
  *   bun ledger.ts weakest [-n 5]             what to drill next
  *   bun ledger.ts due [--count]              concepts due for review today, oldest first
+ *   bun ledger.ts json                       every row, plus which are due (for the dashboards)
  *
  * Spaced repetition: every record sets the next review date from the level —
  * L0 1 day, L1 3, L2 7, L3 21. A miss brings it back tomorrow. Earned skill
@@ -110,6 +111,10 @@ if (cmd === "record") {
   for (const r of rows.filter((r) => r.level !== "L3").slice(0, n)) {
     console.log(`${r.level}  ${r.concept.padEnd(30)} ${r.misses ? `${r.misses} miss streak` : ""}`);
   }
+} else if (cmd === "json") {
+  const rows = load();
+  const dueNow = new Set(due(rows).map((r) => r.concept));
+  console.log(JSON.stringify(rows.map((r) => ({ ...r, isDue: dueNow.has(r.concept) }))));
 } else if (cmd === "due") {
   const d = due();
   if (rest.includes("--count")) console.log(String(d.length));

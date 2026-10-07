@@ -1,89 +1,55 @@
 #!/usr/bin/env bun
 /**
- * raffy dashboard in the browser — the same data as `dash.ts --json`, served
- * locally. No build step, no dependencies, nothing leaves the machine.
+ * raffy dashboard in the browser — the same page and the same data as the
+ * desktop app, served locally. No build step, no dependencies, nothing leaves
+ * the machine.
  *
  *   bun tui/web.ts [--port 4747]      then open http://localhost:4747
  *
  * Binds to 127.0.0.1 only: session titles and project paths are private.
+ * Read-only on purpose: the desktop app can enable skills and open terminals,
+ * but an HTTP endpoint for that could be called by any web page you visit.
  */
-import { collect } from "./dash.ts";
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
 const argv = process.argv.slice(2);
 const port = Number(argv[argv.indexOf("--port") + 1]) || 4747;
+const ROOT = join(import.meta.dir, "..");
 
-const page = /* html */ `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>raffy</title>
-<style>
-:root { --bg:#f4f6f9; --surface:#fff; --ink:#151c29; --muted:#5d6779; --rule:#dfe4ec; --line:#2357e8; --ok:#1d8a4a; --warn:#b26a00;
-  --mono: ui-monospace, "SF Mono", Menlo, monospace; --sans: -apple-system, "Segoe UI", system-ui, sans-serif; color-scheme: light }
-@media (prefers-color-scheme: dark) { :root { --bg:#0e131c; --surface:#161d29; --ink:#e8edf5; --muted:#98a3b5; --rule:#273142; --line:#6b93ff; --ok:#4cc27c; --warn:#f0a83c; color-scheme: dark } }
-* { box-sizing: border-box } body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 var(--sans); padding:24px 16px 48px }
-.wrap { max-width:1180px; margin:0 auto; display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1.3fr); gap:16px }
-@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0,1fr) } }
-header { max-width:1180px; margin:0 auto 18px; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap }
-h1 { margin:0; font-size:22px; letter-spacing:-.01em } .sub { color:var(--muted); font-size:13px }
-.panel { background:var(--surface); border:1px solid var(--rule); border-radius:12px; min-width:0 }
-.list button { all:unset; box-sizing:border-box; display:grid; grid-template-columns: minmax(0,1fr) auto; gap:2px 10px; width:100%;
-  padding:11px 14px; border-bottom:1px solid var(--rule); cursor:pointer }
-.list button:last-child { border-bottom:0 } .list button:hover { background:var(--bg) }
-.list button[aria-selected="true"] { box-shadow: inset 3px 0 0 var(--line); background:var(--bg) }
-.list button:focus-visible { outline:2px solid var(--line); outline-offset:-2px }
-.name { font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap } .ago { font:12px var(--mono); color:var(--muted) }
-.meta { grid-column: 1 / -1; color:var(--muted); font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-.pill { font:11px var(--mono); padding:1px 6px; border-radius:4px; background:var(--bg); color:var(--line); margin-right:6px }
-.detail { padding:18px; display:grid; gap:18px; align-content:start }
-.path { display:flex; flex-wrap:wrap; gap:4px } .path span { font:11.5px var(--mono); padding:3px 7px; border-radius:5px; color:var(--muted); background:var(--bg) }
-.path .done { color:var(--ok) } .path .now { background:var(--line); color:#fff }
-h2 { margin:0 0 6px; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted) }
-ul { margin:0; padding:0; list-style:none; display:grid; gap:6px } li { font-size:13.5px; min-width:0; overflow-wrap:anywhere }
-.why, .date { color:var(--muted) } .date { font:12px var(--mono); margin-right:8px }
-.ok { color:var(--ok) } .warn { color:var(--warn) } .empty { color:var(--muted); padding:18px }
-</style></head><body>
-<header><h1>raffy</h1><span class="sub" id="sum">loading…</span></header>
-<div class="wrap"><div class="panel list" id="list" role="listbox" aria-label="Projects"></div><div class="panel detail" id="detail"></div></div>
-<script>
-const PATH = ["idea","shape","stack","plan","build","ui","debug","review","secure","qa","ship","grow","learn"];
-let data = [], sel = 0;
-const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
-const ago = (t) => { const d = Date.now() - t; return d < 36e5 ? Math.max(1, Math.round(d / 6e4)) + "m" : d < 864e5 ? Math.round(d / 36e5) + "h" : Math.round(d / 864e5) + "d"; };
-function render() {
-  document.getElementById("sum").textContent = data.length + " projects · " + data.reduce((n, p) => n + p.sessions.length, 0) + " sessions · refreshes every 15 s";
-  const list = document.getElementById("list"); list.replaceChildren();
-  if (!data.length) list.append(el("div", "empty", "No projects yet. Run /raffy:guide in a repo to start a trail."));
-  data.forEach((p, i) => {
-    const b = el("button"); b.setAttribute("role", "option"); b.setAttribute("aria-selected", String(i === sel));
-    b.append(el("span", "name", p.name), el("span", "ago", ago(p.lastActive)));
-    const last = p.steps.at(-1), meta = el("span", "meta");
-    if (p.phase) meta.append(el("span", "pill", p.phase));
-    meta.append(document.createTextNode(last ? last.skill + " " + last.status : (p.sessions[0]?.title ?? "")));
-    b.append(meta); b.onclick = () => { sel = i; render(); }; list.append(b);
-  });
-  const d = document.getElementById("detail"), p = data[sel]; d.replaceChildren();
-  if (!p) return;
-  const head = el("div"); head.append(el("div", "name", p.name), el("div", "why", p.path)); d.append(head);
-  if (p.phase) {
-    const done = new Set(p.steps.filter(s => s.status === "done").map(s => s.phase)), row = el("div", "path");
-    PATH.forEach(s => row.append(el("span", s === p.phase ? "now" : done.has(s) ? "done" : "", s + (done.has(s) && s !== p.phase ? " ✓" : ""))));
-    d.append(row);
-  }
-  const section = (title, items, fill) => { if (!items.length) return; const s = el("section"); s.append(el("h2", null, title)); const ul = el("ul"); items.forEach(x => { const li = el("li"); fill(li, x); ul.append(li); }); s.append(ul); d.append(s); };
-  section("Steps", p.steps.slice(-8).reverse(), (li, s) => { li.append(el("span", "date", s.at.slice(0, 10)), document.createTextNode(s.skill + " "), el("span", s.status === "done" ? "ok" : "warn", s.status)); if (s.note) li.append(el("span", "why", " — " + s.note)); });
-  section("Decided", p.decisions.slice(-6).reverse(), (li, x) => { li.append(document.createTextNode(x.text)); if (x.why) li.append(el("span", "why", " — " + x.why)); });
-  section("Sessions (" + p.sessions.length + ")", p.sessions.slice(0, 8), (li, s) => { li.append(el("span", "date", ago(s.at)), document.createTextNode(s.title)); });
+// Same table as `fn raffy` in native/raffy-desktop/src-tauri/src/main.rs — keep them in step.
+const QUERIES: Record<string, string[]> = {
+  projects: ["tui/dash.ts", "--json"],
+  sessions: ["tui/sessions.ts", "--json"],
+  skills: ["skills/guide/scripts/catalog.ts", "list", "--json"],
+  drill: ["skills/drill/scripts/ledger.ts", "json"],
+  budget: ["skills/doctor/scripts/doctor.ts", "budget", ".", "--json"],
+};
+
+// Async: a slow script (doctor runs hooks) must not hold up every other request.
+async function query(name: string): Promise<Response> {
+  if (!Object.hasOwn(QUERIES, name)) return new Response("not found", { status: 404 });
+  const [script, ...rest] = QUERIES[name];
+  const proc = Bun.spawn([process.execPath, join(ROOT, script), ...rest], { cwd: homedir(), stdout: "pipe", stderr: "pipe" });
+  const [out, err, code] = await Promise.all([new Response(proc.stdout).text(), new Response(proc.stderr).text(), proc.exited]);
+  if (code !== 0) return Response.json({ error: err.trim().split("\n").at(-1) }, { status: 500 });
+  return new Response(out, { headers: { "content-type": "application/json" } });
 }
-async function load() { try { data = await (await fetch("/api/projects")).json(); sel = Math.min(sel, Math.max(0, data.length - 1)); render(); } catch { document.getElementById("sum").textContent = "server stopped — rerun bun tui/web.ts"; } }
-document.addEventListener("keydown", (e) => { if (e.key === "ArrowDown") { sel = Math.min(data.length - 1, sel + 1); render(); } if (e.key === "ArrowUp") { sel = Math.max(0, sel - 1); render(); } });
-load(); setInterval(load, 15000);
-</script></body></html>`;
+
+// The page lives in tui/web/index.html so the desktop app can ship the same file.
+const page = readFileSync(join(import.meta.dir, "web", "index.html"), "utf8");
 
 const server = Bun.serve({
   hostname: "127.0.0.1",
   port,
   fetch(req) {
+    // 127.0.0.1 keeps other machines out, not other web pages: a site can rebind its
+    // DNS name to 127.0.0.1 and read this API as same-origin. Only answer our own names.
+    const host = req.headers.get("host");
+    if (host !== `127.0.0.1:${server.port}` && host !== `localhost:${server.port}`) return new Response("forbidden", { status: 403 });
     const { pathname } = new URL(req.url);
-    if (pathname === "/api/projects") return Response.json(collect());
+    if (pathname.startsWith("/api/")) return query(pathname.slice(5));
     if (pathname === "/") return new Response(page, { headers: { "content-type": "text/html; charset=utf-8" } });
     return new Response("not found", { status: 404 });
   },

@@ -6,7 +6,11 @@
  * more than a false positive. Everything it emits is a CANDIDATE and must be
  * verified against source before it appears in a report.
  *
- *   bun scan.ts [repo-path] [--json] [--exclude <path-substring>]...
+ *   bun scan.ts [repo-path] [--json] [--exclude <path-substring>]... [--vendored]
+ *
+ * Folders with a SOURCE.json (third-party code copied in with its upstream repo
+ * and a content hash, like raffy's library/) are skipped and counted, because
+ * their hits belong upstream. --vendored scans them too.
  */
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { join, relative, extname, resolve } from "node:path";
@@ -36,7 +40,7 @@ const SKIP_DIRS = new Set([
 ]);
 const SCAN_EXT = new Set([
   ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".yml", ".yaml",
-  ".env", ".sql", ".py", ".vue", ".svelte", ".tf", ".sh",
+  ".env", ".sql", ".py", ".vue", ".svelte", ".tf", ".sh", ".html", ".astro",
 ]);
 
 type Check = {
@@ -123,10 +127,26 @@ const CHECKS: Check[] = [
 type Hit = { file: string; line: number; check: Check; text: string };
 const hits: Hit[] = [];
 let scanned = 0;
+const SCAN_VENDORED = process.argv.includes("--vendored");
+const vendored: string[] = [];
+
+/** A real provenance record (upstream repo + content hash), not any file that happens to share the name. */
+function isVendored(file: string): boolean {
+  try {
+    const j = JSON.parse(readFileSync(file, "utf8"));
+    return typeof j.repo === "string" && j.repo.includes("/") && typeof j.hash === "string" && j.hash.length >= 8;
+  } catch {
+    return false;
+  }
+}
 
 function walk(dir: string) {
   let entries: string[];
   try { entries = readdirSync(dir); } catch { return; }
+  if (!SCAN_VENDORED && resolve(dir) !== resolve(ROOT) && entries.includes("SOURCE.json") && isVendored(join(dir, "SOURCE.json"))) {
+    vendored.push(relative(ROOT, dir));
+    return;
+  }
   for (const name of entries) {
     if (SKIP_DIRS.has(name)) continue;
     const full = join(dir, name);
@@ -183,7 +203,7 @@ const envTracked = ["\.env", ".env.local", ".env.production"]
 
 if (AS_JSON) {
   console.log(JSON.stringify({
-    scanned, hits: hits.map((h) => ({
+    scanned, vendored, hits: hits.map((h) => ({
       check: h.check.id, name: h.check.name, severity: h.check.severity,
       file: h.file, line: h.line, why: h.check.why, text: redact(h.text),
     })), envFiles: envTracked,
@@ -198,7 +218,9 @@ if (AS_JSON) {
     const k = `${h.check.severity} · check ${h.check.id} · ${h.check.name}`;
     (byCheck.get(k) ?? byCheck.set(k, []).get(k)!).push(h);
   }
-  console.log(`scanned ${scanned} files · ${hits.length} candidates\n`);
+  console.log(`scanned ${scanned} files · ${hits.length} candidates`);
+  if (vendored.length) console.log(`skipped ${vendored.length} vendored folders (SOURCE.json) — their hits belong upstream; --vendored to include`);
+  console.log();
   if (envTracked.length) {
     console.log(`!! env files present on disk — confirm they are git-ignored:`);
     for (const e of envTracked) console.log(`   ${relative(ROOT, e)}`);
