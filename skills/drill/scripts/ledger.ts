@@ -15,7 +15,7 @@ import { join, dirname } from "node:path";
 import { homedir } from "node:os";
 
 const LEDGER = process.env.RAFFY_LEDGER ??
-  join(homedir(), ".claude", "raffy", "progress.md");
+  join(process.env.RAFFY_HOME ?? join(homedir(), ".claude", "raffy"), "progress.md");
 
 const LEVELS = ["L0", "L1", "L2", "L3"] as const;
 type Row = { concept: string; level: string; hits: number; misses: number; project: string; seen: string };
