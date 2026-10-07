@@ -87,6 +87,21 @@ function commandFiles(root: string): string[] {
   return readdirSync(root).filter((f) => f.endsWith(".md")).map((f) => join(root, f));
 }
 
+// A plugin from a local-directory marketplace loads in place from that
+// directory; installPath can point at a stale cache copy (or none at all).
+export function pluginRoot(key: string, installPath: string): string {
+  const [name, market] = key.split("@");
+  try {
+    const m = JSON.parse(readFileSync(join(HOME, "plugins", "known_marketplaces.json"), "utf8"))[market];
+    if (m?.source?.source === "directory" && m.source.path) {
+      const dir = m.source.path;
+      const entry = JSON.parse(readFileSync(join(dir, ".claude-plugin", "marketplace.json"), "utf8")).plugins?.find((p: any) => p.name === name);
+      if (entry && typeof entry.source === "string") return resolve(dir, entry.source);
+    }
+  } catch {}
+  return installPath;
+}
+
 export function scan(projectPath: string) {
 const PROJECT = resolve(projectPath);
 const found: Skill[] = [];
@@ -118,7 +133,7 @@ if (existsSync(manifest)) {
     const usable = installs.filter((i) => i.scope !== "project" || (i.projectPath && resolve(i.projectPath) === PROJECT));
     const pick = usable.find((i) => i.scope === "user") ?? usable[0];
     if (!pick) continue;
-    const root = pick.installPath;
+    const root = pluginRoot(key, pick.installPath);
     let listed: string[] | undefined;
     try { listed = JSON.parse(readFileSync(join(root, ".claude-plugin", "plugin.json"), "utf8")).skills; } catch {}
     const dirs = Array.isArray(listed)

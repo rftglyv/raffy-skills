@@ -517,6 +517,14 @@ Compacts the conversation into a document another agent can pick up.
 
 ## Memory and the code map
 
+### raffy:doctor
+**Phase:** orient · **Source:** raffy · **Docs:** n/a — this plugin
+
+Measures what loads before the first prompt and whether skills can be found.
+
+**Use when** — hitting usage limits · "too many skills" · a skill never fires · before installing more skills
+**Don't use when** — the question is which skill to run for a task; that is `raffy:guide`
+
 ### raffy:memory
 **Phase:** orient · **Source:** raffy · **Docs:** n/a — this plugin
 

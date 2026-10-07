@@ -9,6 +9,7 @@ raffy:qa-audit	core	qa	any	raffy	find everything wrong across the product
 raffy:ship	core	ship	any	raffy	production readiness before first deploy
 raffy:drill	core	learn	any	raffy	practise reviewing your own code
 raffy:setup	core	orient	any	raffy	first run: code map, skill search, learn this machine's skills
+raffy:doctor	core	orient	any	raffy	token cost before the first prompt; why a skill doesn't fire
 raffy:memory	core	orient	any	raffy	recall or record what was decided and why (memory.ts, via the guide)
 graphify	core	build	any	tool	map an unfamiliar codebase before reading files
 find-skills	often	orient	any	agents	discover and install a skill for a new kind of job
