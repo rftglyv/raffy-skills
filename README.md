@@ -86,12 +86,17 @@ bun tui/dash.ts --json     # the same data, for a web or native app
 bun tui/web.ts             # the same view in a browser: http://localhost:4747 (127.0.0.1 only)
 ```
 
-There is also a desktop app for macOS, Windows and Linux (Tauri 2). It shows the same page as the
-browser view (`tui/web/index.html`) and reads the same `dash.ts --json`, so all three views agree:
+There is also a desktop app for macOS, Windows and Linux (Tauri 2): the same page as the browser
+view (`tui/web/index.html`), plus a tray icon and actions — open a terminal or Claude in a project,
+enable or unlink a skill. In Claude Code, open it with:
 
-```bash
-cd native/raffy-desktop && bunx @tauri-apps/cli@2 build     # installers in src-tauri/target/release/bundle/
 ```
+/raffy:app            # desktop app; builds it on first use (needs Rust), rebuilds when raffy changes
+/raffy:app --web      # the browser view instead
+```
+
+Outside Claude Code: `bun tui/app.ts`. Installers: `cd native/raffy-desktop && bunx @tauri-apps/cli@2 build`
+(output in `src-tauri/target/release/bundle/`).
 
 Every project raffy has touched and every Claude Code session on the machine, on one screen: phase,
 last step, decisions and why, recent sessions. Read-only; no server.
