@@ -159,4 +159,11 @@ jobs:
       - name: reads the dashboard
         shell: bash
         env: { RAFFY_ROOT: "${{ github.workspace }}", RAFFY_HOME: "${{ runner.temp }}/raffy", CLAUDE_CONFIG_DIR: "${{ runner.temp }}/claude" }
-        run: native/raffy-desktop/src-tauri/target/release/raffy-desktop --dump | grep -q "0 projects"
+        # Capture first: `| grep -q` closes the pipe at the first match and the app's
+        # later lines would die on a broken pipe.
+        run: |
+          out=$(native/raffy-desktop/src-tauri/target/release/raffy-desktop --dump)
+          echo "$out"
+          for want in "0 projects" "sessions: ok" "skills: ok" "drill: ok" "budget: ok"; do
+            grep -q "$want" <<< "$out" || { echo "missing: $want"; exit 1; }
+          done
