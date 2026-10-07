@@ -5,6 +5,8 @@
  *
  *   bun journey.ts where [project]              signals + inferred phase (--json)
  *   bun journey.ts log   [project] --skill <id> --phase <p> --status <s> [--note "..."] [--session <id>]
+ *                        --status started also requires --why "…" and --not "<skill — reason>"; it prints
+ *                        the explain block the guide shows the user before running anything
  *   bun journey.ts show  [project] [-n 10]      last steps, newest last (--json)
  *   bun journey.ts all                          every project the guide has touched (--json)
  *
@@ -25,7 +27,7 @@ import { spawnSync } from "node:child_process";
 export const PHASES = ["idea", "shape", "stack", "plan", "build", "ui", "debug", "review", "secure", "qa", "ship", "grow", "learn"] as const;
 type Phase = (typeof PHASES)[number];
 type Status = "started" | "done" | "skipped" | "failed";
-type Step = { at: string; skill: string; phase: Phase; status: Status; note?: string; session?: string };
+type Step = { at: string; skill: string; phase: Phase; status: Status; note?: string; why?: string; not?: string; session?: string };
 
 const argv = process.argv.slice(2);
 const cmd = argv[0];
@@ -108,6 +110,15 @@ function log(p: string) {
 
   const step: Step = { at: new Date().toISOString(), skill, phase, status };
   const note = flag("--note"); if (note) step.note = note;
+  // The explanation is not optional. In live runs the guide skipped it whenever
+  // the pick looked obvious, so starting a step now requires the reasons.
+  const why = flag("--why"), not = flag("--not");
+  if (status === "started" && (!why || !not)) {
+    console.error('explain before running: add --why "<why this skill, for this request>" and --not "<the skill you did not pick — why>"');
+    process.exit(2);
+  }
+  if (why) step.why = why;
+  if (not) step.not = not;
   const session = flag("--session") ?? process.env.CLAUDE_SESSION_ID; if (session) step.session = session;
 
   mkdirSync(join(p, ".raffy"), { recursive: true });
@@ -117,7 +128,9 @@ function log(p: string) {
   const index = readIndex();
   index[p] = { path: p, name: basename(p), phase, skill, status, updatedAt: step.at, steps: readSteps(p).length };
   writeFileSync(INDEX, JSON.stringify(index, null, 2) + "\n");
-  console.log(`logged · ${basename(p)} · ${phase} · ${skill} ${status}`);
+  if (status === "started") {
+    console.log(`Start the next message the user reads with these two lines, verbatim:\n\nRoute   ${skill} — ${why}\nNot     ${not}`);
+  } else console.log(`logged · ${basename(p)} · ${phase} · ${skill} ${status}`);
 }
 
 // ── dispatch ─────────────────────────────────────────────────────────────────

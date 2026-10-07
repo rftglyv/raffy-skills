@@ -25,10 +25,12 @@ idea → shape → stack → plan → build → ui → debug → review → secu
 
 ## Phase 0 — Look
 
+Run each command on its own line, exactly as written — one `bun` call per Bash call, no shell
+variables or `&&` chains, so a `Bash(bun:*)` permission rule matches it:
+
 ```bash
-G="${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts"
-bun "$G/journey.ts" where .          # phase, from the last logged step, else from files
-bun "$G/memory.ts" recall level      # the user's level, if known
+bun "${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts/journey.ts" where .
+bun "${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts/memory.ts" recall level
 ```
 
 **Level.** If no `level` preference exists, ask once, as the first line: *"Quick one so I explain
@@ -44,7 +46,7 @@ again. `references/levels.md` says how each level changes the explanation; read 
 **The request beats the phase.** "The login page looks bad" is `ui` whatever `where` said.
 
 1. **Name the job** in a few words, then rewrite it as 3–5 keywords: "checkout is slow" → `slow performance bug`.
-2. `bun "$G/catalog.ts" find <keywords> -n 5` — never load the catalog or the inventory whole.
+2. `bun "${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts/catalog.ts" find <keywords> -n 5` — never load the catalog or the inventory whole.
    Each line is `id · tier · availability · when`.
 3. Read the top one or two **cards** in `knowledge/skills.md` if they exist (the `Don't use when`
    lives there), and the **collision table** at its top when several match the same job.
@@ -67,9 +69,10 @@ Which is closer?
 
 At most 3 options, one line each: what it does for *their* problem, and the cost.
 
-## Phase 2 — Explain
+## Phase 2 — Explain (never skipped)
 
-Before running anything, at the user's level (see `references/levels.md`):
+Show this block before invoking anything — **even when the pick is obvious**. An obvious pick is
+exactly when the `Not` line teaches most. Five lines, at the user's level (`references/levels.md`):
 
 ```
 Where you are   build — 14 commits, tests, no CI yet
@@ -84,14 +87,18 @@ The `Not` line is what teaches routing. If the user names a different skill, tak
 ## Phase 3 — Run and log
 
 ```bash
-bun "$G/journey.ts" log . --skill <id> --phase <phase> --status started
+bun "${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts/journey.ts" log . --skill <id> --phase <phase> --status started --why "<why this one>" --not "<skill not picked — why>"
 ```
 
-Invoke the skill (Skill tool, or read the bundled SKILL.md) and follow it fully; its instructions
-replace these until it ends. Then:
+It refuses without `--why` and `--not`, and prints a two-line route header. **The next message the
+user reads — the skill's first question, or its final report — starts with those two lines.**
+Text written between tool calls is easy to miss; the message that ends your turn is not.
+
+Then invoke the skill (Skill tool, or read the bundled SKILL.md) and follow it fully; its
+instructions replace these until it ends — except that route header. Then:
 
 ```bash
-bun "$G/journey.ts" log . --skill <id> --phase <phase> --status done|failed|skipped --note "<what now exists>"
+bun "${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts/journey.ts" log . --skill <id> --phase <phase> --status done|failed|skipped --note "<what now exists>"
 ```
 
 When a decision was agreed during the run, record it once:
