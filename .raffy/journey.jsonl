@@ -10,3 +10,4 @@
 {"at":"2026-10-07T11:40:10.091Z","skill":"raffy:doctor","phase":"build","status":"done","note":"doctor: token budget per source + skill diagnostics; verified live ($0.28, nothing changed without a yes)"}
 {"at":"2026-10-07T11:41:39.834Z","skill":"raffy:drill","phase":"learn","status":"done","note":"spaced repetition: review dates per level, due list, brief line"}
 {"at":"2026-10-07T11:44:17.973Z","skill":"raffy:evals","phase":"qa","status":"done","note":"7 eval cases; proof case 1.00 locally; Bash cases need CI (Docker Desktop symlinks)"}
+{"at":"2026-10-07T11:47:54.164Z","skill":"raffy:agents","phase":"ship","status":"done","note":"skills usable from Codex, Cursor, Gemini via ~/.agents/skills; hooks stay Claude-only"}

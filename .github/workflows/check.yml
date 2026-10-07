@@ -62,6 +62,16 @@ jobs:
           test "$(bun skills/drill/scripts/ledger.ts due --count)" = "0"
           mkdir -p /tmp/drillproj/.raffy && printf '{"cwd":"/tmp/drillproj"}' | bun hooks/session.ts > /dev/null
 
+      # Copies for other agents: every ${CLAUDE_PLUGIN_ROOT} resolved, names
+      # prefixed, a foreign folder never overwritten, uninstall exact.
+      - name: other agents
+        run: |
+          d=$(mktemp -d)
+          bun scripts/agents.ts install --dir "$d"
+          ! grep -l 'CLAUDE_PLUGIN_ROOT' "$d"/raffy-*/SKILL.md
+          grep -q '^name: raffy-guide' "$d/raffy-guide/SKILL.md"
+          mkdir "$d/raffy-x-mine" && bun scripts/agents.ts uninstall --dir "$d" && test -d "$d/raffy-x-mine"
+
       # The doctor must run on a machine with nothing installed.
       - name: doctor
         env: { CLAUDE_CONFIG_DIR: /tmp/empty-claude }

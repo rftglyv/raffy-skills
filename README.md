@@ -129,6 +129,19 @@ From: `mattpocock/skills` · `addyosmani/agent-skills` · `pbakaus/impeccable` �
 `resciencelab/opc-skills` · `obra/superpowers` · `vercel-labs/skills` · `ayghri/i-have-adhd` ·
 `nextlevelbuilder/ui-ux-pro-max-skill` · `Panniantong/Agent-Reach` · `Orchestra-Research/AI-Research-SKILLs`.
 
+## Codex, Cursor and Gemini CLI
+
+```bash
+bun scripts/agents.ts install      # writes raffy-<skill>/ into ~/.agents/skills
+bun scripts/agents.ts uninstall    # removes only what install wrote
+bun scripts/agents.ts snippet      # optional AGENTS.md lines pointing the agent at raffy-guide
+```
+
+All three read `~/.agents/skills` (Gemini as an alias over `~/.gemini/skills`). Each copy has this
+repo's real path in place of `${CLAUDE_PLUGIN_ROOT}`, so the scripts run from here; re-run install
+after moving the repo. **Hooks do not carry over** — the guard, the proof check, the prompt hint and
+the session brief are Claude Code hooks. Other agents get the skills and their scripts.
+
 ## Install
 
 ```bash
@@ -151,6 +164,7 @@ skills/
   ship/                  SKILL.md · readiness.md
   qa-audit/              SKILL.md · 5 references · parse_findings.py
   drill/                 SKILL.md · concepts.md
+scripts/agents.ts        copies the skills for Codex, Cursor and Gemini CLI
 library/                 52 bundled skills · sources.json · licenses/ · INDEX.tsv
 hooks/                   hooks.json · guard.ts (PreToolUse) · proof.ts (Stop) · prompt.ts (UserPromptSubmit) · session.ts (SessionStart)
 tui/                     dash.ts (terminal) · web.ts (browser, localhost only) — across projects and sessions
