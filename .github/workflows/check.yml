@@ -30,7 +30,7 @@ jobs:
         run: |
           bun skills/guide/scripts/inventory.ts . --json | node -e "JSON.parse(require('fs').readFileSync(0))"
           bun skills/guide/scripts/journey.ts where . --json > /dev/null
-          bun skills/guide/scripts/journey.ts log /tmp --skill raffy:guide --phase build --status done
+          bun skills/guide/scripts/journey.ts log /tmp --skill raffy:guide --phase build --status done --note ci
           bun skills/guide/scripts/journey.ts all | grep -q raffy:guide
           bun skills/guide/scripts/catalog.ts find did I leak api keys | grep -q raffy:secure
 
