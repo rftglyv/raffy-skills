@@ -23,6 +23,25 @@ services. Turso adds replication and edge distribution on top.
 **Don't use when** — many concurrent writers, or you need Postgres features you will miss.
 **Adopt:** minutes · **Remove later:** a day (to Postgres — plan the schema so it ports)
 
+### PGlite
+**Bun:** full — WASM, no native build
+**Docs:** https://pglite.dev
+**Teaches:** embedded-databases, test-isolation
+
+Postgres compiled to WASM, running inside your process.
+
+**Use when** — tests: a fresh real Postgres per test file, in memory, no Docker · in-browser or
+single-process tools
+**Don't use when** — the dev database of a Next.js (or any multi-worker) app: dev servers run several
+processes and PGlite allows one, so the data folder locks or corrupts. For dev use a real Postgres —
+Postgres.app, Docker, or the `embedded-postgres` package as a child process. Under bun its
+postinstall is blocked: run `bun pm trust @embedded-postgres/<platform>` and also list
+`@embedded-postgres/linux-x64` in `trustedDependencies` so CI can start it. Give it its own port
+(e.g. 54329) and a `--run <cmd>` wrapper that reuses a server already running.
+**Adopt:** minutes · **Remove later:** minutes (it is Postgres; only the connection changes)
+**Gotcha:** in a live scaffold run, choosing it as the dev database cost ~25 rewrites of the client
+and migration files before switching to a server process. Decide this at composition time.
+
 ### MySQL / MariaDB
 **Docs:** https://dev.mysql.com/doc · **Teaches:** relational-modeling
 **Use when** — an existing system, a host that only offers it, or a team standard.

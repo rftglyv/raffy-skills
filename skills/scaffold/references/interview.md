@@ -3,6 +3,9 @@
 Ten to fifteen minutes of questions that prevent a rewrite. Ask conversationally, one at a time
 for a new user, batched for a fluent one. **Never infer an answer you could ask for.**
 
+When batching, **label every option** (`A`, `B`, `C`) and every sub-question. Users answer in
+shorthand — "1b, yes" — and an unlabeled list turns that into a second round trip, or a guess.
+
 Every question below maps an answer to a *constraint*, and constraints — not preferences — pick
 components.
 
