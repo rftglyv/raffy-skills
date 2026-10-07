@@ -82,6 +82,7 @@ bunx raffy-kb stats
 ```bash
 bun tui/dash.ts            # ↑↓ select · enter details · r refresh · q quit
 bun tui/dash.ts --json     # the same data, for a web or native app
+bun tui/web.ts             # the same view in a browser: http://localhost:4747 (127.0.0.1 only)
 ```
 
 Every project raffy has touched and every Claude Code session on the machine, on one screen: phase,
@@ -133,7 +134,7 @@ skills/
   drill/                 SKILL.md · concepts.md
 library/                 52 bundled skills · sources.json · licenses/ · INDEX.tsv
 hooks/                   hooks.json · prompt.ts (UserPromptSubmit) · session.ts (SessionStart)
-tui/                     dash.ts — terminal dashboard across projects and sessions
+tui/                     dash.ts (terminal) · web.ts (browser, localhost only) — across projects and sessions
 .raffy/                  raffy's own journey and decisions, kept in the repo
 packages/raffy-kb/       npm package: CLI + statusline
 ```
