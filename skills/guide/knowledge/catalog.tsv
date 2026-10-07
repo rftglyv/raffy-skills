@@ -1,6 +1,6 @@
 # id	tier	phase	domain	src	when
 # tier: core = general, run regularly · often = common but situational · rare = niche, known · skip = never route, reason in "when"
-# src: raffy · builtin · plugin:<name> · user · command · agents (on disk in ~/.agents/skills, link to enable) · project:<repo>
+# src: raffy · builtin · tool (a CLI on PATH) · plugin:<name> · user · command · agents (on disk in ~/.agents/skills, link to enable) · project:<repo>
 # Read with scripts/catalog.ts — never load this whole file into context.
 raffy:guide	core	orient	any	raffy	what next, which skill, where are we
 raffy:scaffold	core	stack	any	raffy	new project; pick a stack with reasons
@@ -8,6 +8,9 @@ raffy:secure	core	secure	web	raffy	pre-deploy security pass, leaked keys
 raffy:qa-audit	core	qa	any	raffy	find everything wrong across the product
 raffy:ship	core	ship	any	raffy	production readiness before first deploy
 raffy:drill	core	learn	any	raffy	practise reviewing your own code
+raffy:setup	core	orient	any	raffy	first run: code map, skill search, learn this machine's skills
+raffy:memory	core	orient	any	raffy	recall or record what was decided and why (memory.ts, via the guide)
+graphify	core	build	any	tool	map an unfamiliar codebase before reading files
 find-skills	often	orient	any	agents	discover and install a skill for a new kind of job
 mattpocock-skills:ask-matt	rare	orient	any	plugin:mattpocock-skills	route inside Matt's skills only
 flow	rare	orient	any	command	conductor for a spec→plan→build project already using it

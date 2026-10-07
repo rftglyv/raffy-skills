@@ -512,3 +512,25 @@ Compacts the conversation into a document another agent can pick up.
 
 **Use when** — ending a session mid-work · passing work to a parallel agent
 **Don't use when** — the work is done; a commit message is the handoff
+
+---
+
+## Memory and the code map
+
+### raffy:memory
+**Phase:** orient · **Source:** raffy · **Docs:** n/a — this plugin
+
+Records what the project decided and why, and brings it back at session start.
+
+**Use when** — a decision is agreed · the user asks "why did we…" · about to re-decide a library or a data shape
+**Don't use when** — the thing is a fact about the code's structure; graphify rebuilds that from source and memory would go stale
+**Pairs with:** `graphify`
+
+### graphify
+**Phase:** build · **Source:** tool · **Docs:** https://github.com/Graphify-Labs/graphify
+
+Builds a graph of a codebase from its syntax tree, locally, and answers structure questions from it.
+
+**Use when** — opening a repo you have not read · "where is X used" · "what breaks if I change Y" (`graphify affected`)
+**Don't use when** — a single file is enough · the repo has a fresh `graphify-out/` already; query it instead of rebuilding
+**Gotcha:** naming communities calls an LLM backend; `graphify update .` alone stays local and needs no key

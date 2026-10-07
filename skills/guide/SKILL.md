@@ -121,6 +121,29 @@ Then stop. One next step, not a menu. If the user wants it, they say so and Phas
 
 ---
 
+## Memory
+
+The session-start hook already printed this project's decisions, if it has any. Before re-deciding
+anything — a library, an auth model, a data shape — check what was decided and why:
+
+```bash
+bun "${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts/memory.ts" recall <keywords>
+```
+
+When the user agrees to a decision, record it once, at the moment it lands:
+
+```bash
+bun "${CLAUDE_PLUGIN_ROOT}/skills/guide/scripts/memory.ts" remember --kind decision \
+  --text "<the decision, one line>" --why "<the reason that would change it>" --tags <words someone would search>
+```
+
+- `--tags` carries the search: the small local model does not know Postgres is a database, so
+  write `database,db,postgres,orm`. This is the single most useful thing to get right.
+- `--kind fact` for things that are true but not chosen (a webhook path, a quota). `--kind pref` for
+  how the user likes to work; preferences follow them across projects.
+- Never store a map of the code: it goes stale the day the code changes. That is graphify's job.
+- A reversed decision is `forget <id> --why "<what replaced it>"`, then `remember` the new one.
+
 ## Code map
 
 In a repo you have not read before, check for `graphify-out/GRAPH_REPORT.md` before grepping. If
@@ -143,4 +166,5 @@ instead of reading files one by one. If graphify is missing, say `/raffy:setup` 
 - `${CLAUDE_PLUGIN_ROOT}/library/` — 52 bundled skills from other authors, license-checked; `INDEX.tsv` lists them
 - `scripts/catalog.ts` — `find` candidates for a job, `stats` for coverage, `enable` to link a dormant skill
 - `scripts/inventory.ts` — what is installed, from where, and which names collide
+- `scripts/memory.ts` — decisions, facts and preferences: `remember`, `recall`, `forget`, `brief`
 - `scripts/journey.ts` — phase inference, the per-project log, and the cross-project index at `~/.claude/raffy/projects.json`
