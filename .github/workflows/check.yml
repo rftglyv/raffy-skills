@@ -54,6 +54,14 @@ jobs:
           test -z "$quiet"
           printf 'not json' | bun hooks/prompt.ts
 
+      # Spaced repetition: a miss is due tomorrow, and the session brief says so.
+      - name: drill schedule
+        env: { RAFFY_HOME: /tmp/raffy-drill }
+        run: |
+          bun skills/drill/scripts/ledger.ts record webhook-idempotency miss | grep -q "review"
+          test "$(bun skills/drill/scripts/ledger.ts due --count)" = "0"
+          mkdir -p /tmp/drillproj/.raffy && printf '{"cwd":"/tmp/drillproj"}' | bun hooks/session.ts > /dev/null
+
       # The doctor must run on a machine with nothing installed.
       - name: doctor
         env: { CLAUDE_CONFIG_DIR: /tmp/empty-claude }

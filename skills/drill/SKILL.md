@@ -30,13 +30,15 @@ supervise" means concretely, and it is what this skill moves.
 ## Phase 0 — Load the state
 
 ```bash
-bun "${CLAUDE_PLUGIN_ROOT}/skills/drill/scripts/ledger.ts" show
+bun "${CLAUDE_PLUGIN_ROOT}/skills/drill/scripts/ledger.ts" due
 bun "${CLAUDE_PLUGIN_ROOT}/skills/drill/scripts/ledger.ts" weakest -n 5
 cat .raffy/progress.md 2>/dev/null
 ```
 
-The ledger holds a level per concept plus the hit/miss streak. `weakest` is the drill list — it
-returns everything not yet at L3, worst first. **No ledger?** This is their first session — say so.
+The ledger holds a level per concept, the hit/miss streak, and a review date. **Due concepts come
+first** — a concept earned and never revisited fades, so reviews outrank new material. Then
+`weakest`: everything not yet at L3, worst first. Every `record` sets the next review date (L0 1 day,
+L1 3, L2 7, L3 21; a miss means tomorrow) and prints it — tell the user when it comes back. **No ledger?** This is their first session — say so.
 Every concept starts at **L0** (not yet earned); two consecutive hits make it L1. The ledger file is
 created on the first `record`.
 
