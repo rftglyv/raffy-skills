@@ -95,7 +95,8 @@ function budget(project: string) {
   // someone else's hook is their code, on your machine.
   const hooks = [
     ...hooksOf(join(HOME, "settings.json")).map((h) => ({ ...h, owner: "user settings", root: "" })),
-    ...hooksOf(join(project, ".claude", "settings.json")).map((h) => ({ ...h, owner: "project settings", root: "" })),
+    // From the home folder, the project settings file is the user one; don't count it twice.
+    ...(resolve(project, ".claude") === resolve(HOME) ? [] : hooksOf(join(project, ".claude", "settings.json"))).map((h) => ({ ...h, owner: "project settings", root: "" })),
     ...pluginHooks().map((h) => ({ ...h, owner: `plugin ${h.plugin}` })),
   ].filter((h) => h.event === "SessionStart" || h.event === "UserPromptSubmit");
   for (const h of hooks) {

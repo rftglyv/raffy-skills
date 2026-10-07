@@ -118,9 +118,11 @@ const add = (dir: string, source: Skill["source"], plugin?: string, file = join(
   });
 };
 
-for (const d of skillDirs(join(PROJECT, ".claude", "skills"))) add(d, "project");
+// Run from the home folder, <project>/.claude *is* the user folder: count it once, as user.
+const projectClaude = resolve(PROJECT, ".claude") === resolve(HOME) ? null : join(PROJECT, ".claude");
+if (projectClaude) for (const d of skillDirs(join(projectClaude, "skills"))) add(d, "project");
 for (const d of skillDirs(join(HOME, "skills"))) add(d, "user");
-for (const f of [...commandFiles(join(PROJECT, ".claude", "commands")), ...commandFiles(join(HOME, "commands"))]) add(f, "command", undefined, f);
+for (const f of [...(projectClaude ? commandFiles(join(projectClaude, "commands")) : []), ...commandFiles(join(HOME, "commands"))]) add(f, "command", undefined, f);
 
 const manifest = join(HOME, "plugins", "installed_plugins.json");
 if (existsSync(manifest)) {
